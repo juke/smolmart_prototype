@@ -10,8 +10,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import artworksData from "@/data/artworks.json"
-import { Search, SlidersHorizontal, Sparkles, Flame, Clock, TrendingUp, Banana, Menu } from "lucide-react"
+import { Search, SlidersHorizontal, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star } from "lucide-react"
 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
@@ -41,6 +42,17 @@ const item = {
 }
 
 function ArtworkCard({ artwork, index }: ArtworkCardProps) {
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "Available for Custom":
+        return <Palette className="h-4 w-4 text-green-500" />
+      case "Limited Edition":
+        return <Crown className="h-4 w-4 text-yellow-500" />
+      default:
+        return <Star className="h-4 w-4 text-blue-500" />
+    }
+  }
+
   return (
     <motion.div
       variants={item}
@@ -74,7 +86,16 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
           ))}
         </div>
         <div className="flex items-center justify-between mt-auto pt-2">
-          <span className="text-xs text-muted-foreground">{artwork.status}</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getStatusIcon(artwork.status)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{artwork.status}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Button variant="outline" size="sm">
             Request Custom
           </Button>
