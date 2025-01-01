@@ -96,7 +96,8 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
   return (
     <motion.div
       variants={item}
-      data-rarity={artwork.status === "Limited Edition" ? "rare holo v" : "rare holo"}
+      data-rarity={artwork.status === "Limited Edition" ? "rare ultra" : "rare holo"}
+      {...(artwork.status === "Limited Edition" ? { "data-supertype": "pokémon" } : {})}
       className="card relative w-full border bg-card text-card-foreground group rounded-lg"
     >
       <div className="card__front">
@@ -109,7 +110,7 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
                 ? `perspective(1000px) 
                    rotateX(${rotation.x}deg) 
                    rotateY(${rotation.y}deg) 
-                   scale3d(1.08, 1.08, 1.08)
+                   scale3d(1.02, 1.02, 1.02)
                    translateZ(40px)`
                 : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0)',
               transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
@@ -122,7 +123,7 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
             onMouseMove={handleMouseMove}
             onMouseEnter={() => {
               setIsHovered(true)
-              setOpacity(0.4)
+              setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
             }}
             onMouseLeave={() => {
               setIsHovered(false)
