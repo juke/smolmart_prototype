@@ -12,7 +12,7 @@ import {
 export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center">
@@ -50,7 +50,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="h-[calc(100vh-3.5rem)]">{children}</main>
+      <main className="pt-14 h-[calc(100vh-3.5rem)]">{children}</main>
     </div>
   )
 } 

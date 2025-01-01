@@ -45,7 +45,7 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
     <motion.div
       variants={item}
       whileHover={{ scale: 1.02 }}
-      className="group h-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-lg"
+      className="group w-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-lg"
     >
       <div className="aspect-square overflow-hidden rounded-t-lg">
         <img
@@ -123,9 +123,9 @@ export default function GalleryPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar className="hidden md:block">
-          <SidebarContent className="fixed inset-y-0 w-[280px] border-r bg-card px-4 pt-4 md:pt-[4.5rem] overflow-y-auto">
+          <SidebarContent className="fixed inset-y-0 w-[280px] border-r bg-card px-4 pt-4 pb-[1rem] md:mt-[3.5rem] overflow-y-auto">
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-2">
@@ -205,8 +205,8 @@ export default function GalleryPage() {
         </Sidebar>
 
         <SidebarInset className="flex-1 flex flex-col min-w-0 md:pl-6">
-          <header className="sticky top-0 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center justify-between px-4">
+          <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex w-full items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="md:hidden">
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -220,36 +220,39 @@ export default function GalleryPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <div className="flex items-center gap-1 md:gap-2">
+                <Button variant="ghost" size="sm" className="md:h-9 md:w-auto md:px-3">
                   <Sparkles className="h-4 w-4" />
-                  <span className="sr-only">Featured</span>
+                  <span className="sr-only md:not-sr-only md:ml-2">Featured</span>
                 </Button>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="md:h-9 md:w-auto md:px-3">
                   <Flame className="h-4 w-4" />
-                  <span className="sr-only">Popular</span>
+                  <span className="sr-only md:not-sr-only md:ml-2">Popular</span>
                 </Button>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="md:h-9 md:w-auto md:px-3">
                   <Clock className="h-4 w-4" />
-                  <span className="sr-only">Recent</span>
+                  <span className="sr-only md:not-sr-only md:ml-2">Recent</span>
                 </Button>
               </div>
             </div>
-          </header>
+          </div>
 
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 md:pr-4">
-              <motion.div 
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 auto-rows-max"
-              >
-                {filteredArtworks.map((artwork, index) => (
-                  <ArtworkCard key={artwork.id} artwork={artwork} index={index} />
-                ))}
-              </motion.div>
-            </div>
+          <div className="flex-1 h-full overflow-y-auto p-4 md:p-6">
+            <motion.div 
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 h-fit w-full mx-auto"
+              style={{
+                maxWidth: 'min(100%, 1800px)',
+              }}
+            >
+              {filteredArtworks.map((artwork, index) => (
+                <div key={artwork.id} className="h-fit">
+                  <ArtworkCard artwork={artwork} index={index} />
+                </div>
+              ))}
+            </motion.div>
           </div>
         </SidebarInset>
       </div>
