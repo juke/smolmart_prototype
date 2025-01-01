@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Art</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>My Profile</h1>
+            <p>TreasureTag</p>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+				<li><a href="smol_memes.html">SMOL MEMES</a></li>
+                <li><a href="smol_customs.html">SMOL CUSTOMS</a></li>
+				<li><a href="request_custom.html">REQUEST CUSTOM</a></li>
+				<li><a href="submit_meme.html">SUBMIT MEME</a></li>
+                <li>MY PROFILE
+                    <ul class="sub-options">
+                        <li><a href="inbox.html">INBOX</a></li>
+                        <li><a href="queue.html">QUEUE</a></li>
+                        <li><a href="submitted.html">SUBMITTED</a></li>
+                        <li><a href="completed.html">COMPLETED</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="gallery">
+                <div class="photo">
+                    <img src="smol.png" alt="Smol Artist">
+                </div>
+            </div>
+            <p>**This image will show either their Custom Smol NFT or a random Smol Brains NFT in their wallet if they have one</p>
+        </div>
+        <div class="login">
+            <a href="#" id="login">Log-In</a>
+        </div>
+
+        <p>5 Bananas.</p>
+        <p>3 Memes Submitted.</p>
+        <p>1,338,222 Customs Created.</p>
+        <p></p>
+        <p></p>
+    </div>
+
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>NO PROFILE FOUND</p>
+            <button>Mint Smol Custom</button>
+            <button>Create Treasure Tag</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Art</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create a Custom Smol</h1>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+				<li><a href="smol_memes.html">SMOL MEMES</a></li>
+                <li><a href="smol_customs.html">SMOL CUSTOMS</a></li>
+				<li><a href="request_custom.html">REQUEST CUSTOM</a></li>
+				<li><a href="submit_meme.html">SUBMIT MEME</a></li>
+                <li>MY PROFILE
+                    <ul class="sub-options">
+                        <li><a href="inbox.html">INBOX</a></li>
+                        <li><a href="queue.html">QUEUE</a></li>
+                        <li><a href="submitted.html">SUBMITTED</a></li>
+                        <li><a href="completed.html">COMPLETED</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="gallery">
+                <div class="photo">
+                    <img src="smol.png" alt="Smol Artist">
+                </div>
+            </div>
+        </div>
+        <div class="login">
+            <a href="#" id="login">Log-In</a>
+        </div>
+
+        <p>Smols who own $100 or more of SMOL will automatically be minted a Custom Smol NFT.</p>
+        <p>You can make a request to a community artist -- or any address on Arbitrum -- to update your NFT to a Custom Smol.</p>
+        <p>Approved avatars can start earning Bananas and SMOL.</p>
+        <p>You will continue earning until you sell your SMOL.</p>
+        <p></p>
+        <p></p>
+        <p>Steps to Get Started</p>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th style="width: auto;">Task</th>
+                    <th style="width: 100px;">Status</th>
+                </tr>
+                <tr>
+                    <td style="width: auto;">Mint Smol Custom</td>
+                    <td style="width: auto;">&#x2705;</td>
+                </tr>
+                <tr>
+                    <td style="width: auto;">Commission Custom</td>
+                    <td style="width: auto;">&#x1F6A9;</td>
+                </tr>
+                <tr>
+                    <td style="width: auto;">Custom Approved</td>
+                    <td style="width: auto;">&#x1F6A9;</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>NO PROFILE FOUND</p>
+            <button>Mint Smol Custom</button>
+            <button>Create Treasure Tag</button>
+        </div>
+    </div>
+
+    <p>**This webpage will prompt users to connect to MetaMask. It will check if they have (1) minted a Smol Custom, (2) requested custom art, (3) had it approved, and give either a check mark or flag for each.</p>
+    <p> There should be some way "CLICK HERE!" to mint a Smol Custom, which will set up a transaction to buy $105 using either MAGIC or ETH if either balance is >$105.</p>
+
+    <script src="script.js"></script>
+</body>
+</html>

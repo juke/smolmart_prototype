@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request a Custom</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Request a Custom</h1>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+				<li><a href="smol_memes.html">SMOL MEMES</a></li>
+                <li><a href="smol_customs.html">SMOL CUSTOMS</a></li>
+				<li><a href="request_custom.html">REQUEST CUSTOM</a></li>
+				<li><a href="submit_meme.html">SUBMIT MEME</a></li>
+                <li>MY PROFILE
+                    <ul class="sub-options">
+                        <li><a href="inbox.html">INBOX</a></li>
+                        <li><a href="completed.html">COMPLETED</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="carousels">
+                <div class="carousel">
+                    <h3>YESHY (56 BANANAS)</h3>
+                    <div class="photos">
+                        <img src="smol.png" alt="Smol">
+                        <img src="smol2.png" alt="Smol">
+                    </div>
+                    <a href="yeshy.html" class="request-link">REQUEST CUSTOM</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="request-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>REQUEST CUSTOM FROM (ARTIST)</h2>
+            <form>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" placeholder="Describe the Smol to make">
+
+                <label for="smolcoin">Smolcoin offer</label>
+                <input type="number" id="smolcoin" name="smolcoin">
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <p> **This webpage is sorting Custom ERC721s by their Bananas, highest to lowest, nothing else. NO WRITE FUNCTIONS USED ON THIS PAGE</p>
+
+    <script src="script.js"></script>
+</body>
+</html>

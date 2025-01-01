@@ -1,0 +1,63 @@
+Project Name: SmolMart
+Project Specification: Art Showcase Prototype (Ethereum-Ready)
+
+Objective:
+Develop a React-based prototype for an Ethereum-integrated art showcase website, using Shadcn for UI and card-based layouts to present content. The initial focus is on frontend design and structure, with Ethereum subgraph integration planned for later.
+
+Features for the Prototype:
+	1.	Homepage:
+	•	Hero Section: Placeholder banner or a featured artwork card.
+	•	Navigation: Links to Home, Gallery, Artist Profiles, and About.
+	2.	Gallery:
+	•	Card Grid Layout:
+	•	Artwork cards displaying:
+	•	Placeholder thumbnail
+	•	Title (e.g., “Artwork Title”)
+	•	Artist name (e.g., “By Artist Name”)
+	•	Ethereum data placeholders: e.g., price (ETH), transaction history, or ownership.
+	•	Static Filters: Buttons or dropdowns to filter by categories like price, ownership, or creation date (dummy options for now).
+	3.	Artwork Details Page:
+	•	Expanded Card View:
+	•	Full-size artwork image.
+	•	Placeholder metadata:
+	•	Title, artist, description
+	•	Ethereum-related fields:
+	•	Current owner
+	•	Smart contract address (displayed as a link)
+	•	Transaction history (static mock data)
+	4.	Artist Profiles:
+	•	Card-Based Artist List:
+	•	Photo (placeholder)
+	•	Name and short bio preview
+	•	Placeholder Ethereum wallet address
+	•	Clicking on a card links to an individual artist profile page:
+	•	Artist bio
+	•	Gallery of their artworks (placeholder cards).
+	5.	Responsive Design:
+	•	Optimized for all devices using Shadcn and card components.
+
+Ethereum Integration (Planned):
+	•	Subgraphs:
+	•	The prototype assumes Ethereum data will be fetched dynamically via The Graph’s subgraphs in future iterations.
+	•	Subgraphs will provide:
+	•	Artwork metadata (from smart contracts or token standards like ERC-721/1155).
+	•	Ownership details (current and historical).
+	•	On-chain artist profiles (e.g., wallet-linked identities).
+	•	Frontend Preparedness:
+	•	Cards and components will be designed to seamlessly incorporate Ethereum-based data fields once subgraphs are integrated.
+	•	Ethereum address fields and placeholders are included in the design now.
+
+Technical Stack:
+	•	Frontend Framework: React with Vite
+	•	UI Components & Styling: Shadcn (using TailwindCSS)
+	•	Routing: React Router for page navigation
+	•	State Management: TanStack Query for data fetching and caching
+	•	Ethereum Integration (Later): The Graph subgraphs for dynamic data
+
+Deliverables:
+	1.	Prototype Features:
+	•	Homepage, Gallery, Artwork Details, and Artist Profiles with Ethereum-ready placeholders.
+	2.	Deployment:
+	•	Hosted prototype showcasing Ethereum-aligned structure.
+
+This prototype ensures the frontend is visually appealing and ready to integrate Ethereum data without requiring backend support initially. Let me know if you’d like help drafting any UI elements or coding examples!

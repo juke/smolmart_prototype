@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request a Custom from Yeshy</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Request a Custom from Yeshy</h1>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="smol_memes.html">SMOL MEMES</a></li>
+                <li><a href="smol_customs.html">SMOL CUSTOMS</a></li>
+                <li><a href="request_custom.html">REQUEST CUSTOM</a></li>
+                <li><a href="request_custom.html">SUBMIT MEME</a></li>
+                <li>MY PROFILE
+                    <ul class="sub-options">
+                        <li><a href="inbox.html">INBOX</a></li>
+                        <li><a href="queue.html">QUEUE</a></li>
+                        <li><a href="submitted.html">SUBMITTED</a></li>
+                        <li><a href="completed.html">COMPLETED</a></li>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="carousels">
+                <div class="carousel">
+                    <div class="photos">
+                        <img src="smol.png" alt="Smol">
+                    </div>
+                    <p>55 Bananas</p>
+                    <p><strong>5 orders ahead of you</strong></p>
+                    <div id="request-form">
+                        <h2>Request Custom from Yeshy</h2>
+                        <form id="custom-request-form">
+                            
+                            <label for="description">Description</label>
+                            <input type="text" id="description" name="description" placeholder="Describe the Smol you want Yeshy to make" required>
+                            
+                            <label for="smolcoin">Smolcoin offer</label>
+                            <input type="number" id="smolcoin" name="smolcoin" required>
+                            
+                            <button type="submit">Submit offer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="request-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>REQUEST CUSTOM FROM (ARTIST)</h2>
+            <form>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" placeholder="Describe the Smol to make">
+                <label for="smolcoin">Smolcoin offer</label>
+                <input type="number" id="smolcoin" name="smolcoin">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <p> **The user needs to be connected to Metamask to submitOffer. If so, they can attempt submitOffer function on Custom NFT contract. We want to check if they own a Custom Smol set to default (status: 'inactive') before they can click submit offer.</p>
+
+    <script src="script.js"></script>
+</body>
+</html>
