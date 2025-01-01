@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
 import { 
   Sidebar, 
@@ -17,6 +17,14 @@ import { Search, SlidersHorizontal, Sparkles, Flame, Clock, TrendingUp, Banana, 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
   index: number
+}
+
+interface CardCoords {
+  x: number
+  y: number
+  rx: number
+  ry: number
+  hyp: number
 }
 
 const container = {
@@ -42,6 +50,38 @@ const item = {
 }
 
 function ArtworkCard({ artwork, index }: ArtworkCardProps) {
+  const imageRef = useRef<HTMLDivElement>(null)
+  const [rotation, setRotation] = useState({ x: 0, y: 0 })
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
+  const [isHovered, setIsHovered] = useState(false)
+  const [opacity, setOpacity] = useState(0)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return
+
+    const image = imageRef.current
+    if (!image) return
+    
+    const rect = image.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    // Calculate angle between mouse and center point
+    const angleX = (e.clientY - centerY) / (rect.height / 2)
+    const angleY = (e.clientX - centerX) / (rect.width / 2)
+    
+    // Limit rotation and make it smoother
+    const rotateX = Math.max(-4, Math.min(4, -angleX * 4))
+    const rotateY = Math.max(-4, Math.min(4, angleY * 4))
+    
+    // Calculate mouse position relative to element center
+    const mouseX = ((e.clientX - rect.left) / rect.width) * 100
+    const mouseY = ((e.clientY - rect.top) / rect.height) * 100
+
+    setRotation({ x: rotateX, y: rotateY })
+    setMousePosition({ x: mouseX, y: mouseY })
+  }
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Available for Custom":
@@ -56,49 +96,85 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
   return (
     <motion.div
       variants={item}
-      whileHover={{ scale: 1.02 }}
-      className="group w-full rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-lg"
+      data-rarity={artwork.status === "Limited Edition" ? "rare holo v" : "rare holo"}
+      className="card relative w-full border bg-card text-card-foreground group rounded-lg"
     >
-      <div className="aspect-square overflow-hidden rounded-t-lg">
-        <img
-          src={artwork.image}
-          alt={artwork.title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-        />
-      </div>
-      <div className="p-4 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
-          <span className="flex items-center gap-1 text-yellow-500 shrink-0">
-            <Banana className="h-4 w-4" />
-            <span>{artwork.bananas}</span>
-          </span>
+      <div className="card__front">
+        <div className="relative overflow-visible">
+          <div 
+            ref={imageRef}
+            className="card__image-container relative aspect-square overflow-hidden rounded-t-lg"
+            style={{
+              transform: isHovered 
+                ? `perspective(1000px) 
+                   rotateX(${rotation.x}deg) 
+                   rotateY(${rotation.y}deg) 
+                   scale3d(1.08, 1.08, 1.08)
+                   translateZ(40px)`
+                : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0)',
+              transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
+              transformStyle: 'preserve-3d',
+              transformOrigin: 'center center',
+              borderRadius: isHovered ? '0.5rem' : '0.5rem 0.5rem 0 0',
+              '--o': opacity,
+              '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
+            } as React.CSSProperties}
+            onMouseMove={handleMouseMove}
+            onMouseEnter={() => {
+              setIsHovered(true)
+              setOpacity(0.4)
+            }}
+            onMouseLeave={() => {
+              setIsHovered(false)
+              setRotation({ x: 0, y: 0 })
+              setMousePosition({ x: 50, y: 50 })
+              setOpacity(0)
+            }}
+          >
+            <img
+              src={artwork.image}
+              alt={artwork.title}
+              className="h-full w-full object-cover transform-gpu"
+            />
+            <div className="card__shine absolute inset-0" />
+            <div className="card__glare absolute inset-0" />
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground">by {artwork.artist}</p>
-        <div className="flex flex-wrap gap-1">
-          {artwork.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium"
-            >
-              {tag}
+        
+        <div className="p-4 flex flex-col gap-2 rounded-b-lg">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
+            <span className="flex items-center gap-1 text-yellow-500 shrink-0">
+              <Banana className="h-4 w-4" />
+              <span>{artwork.bananas}</span>
             </span>
-          ))}
-        </div>
-        <div className="flex items-center justify-between mt-auto pt-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                {getStatusIcon(artwork.status)}
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{artwork.status}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <Button variant="outline" size="sm">
-            Request Custom
-          </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">by {artwork.artist}</p>
+          <div className="flex flex-wrap gap-1">
+            {artwork.tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center justify-between mt-auto pt-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  {getStatusIcon(artwork.status)}
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{artwork.status}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button variant="outline" size="sm" className="rounded-md">
+              Request Custom
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -226,7 +302,7 @@ export default function GalleryPage() {
         </Sidebar>
 
         <SidebarInset className="flex-1 flex flex-col min-w-0 md:pl-6">
-          <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="sticky top-1 z-40 flex h-16 shrink-0 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex w-full items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="md:hidden">
@@ -266,10 +342,12 @@ export default function GalleryPage() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 h-fit w-full mx-auto"
               style={{
                 maxWidth: 'min(100%, 1800px)',
+                perspective: '1000px',
+                transformStyle: 'preserve-3d'
               }}
             >
               {filteredArtworks.map((artwork, index) => (
-                <div key={artwork.id} className="h-fit">
+                <div key={artwork.id} className="h-fit" style={{ transformStyle: 'preserve-3d' }}>
                   <ArtworkCard artwork={artwork} index={index} />
                 </div>
               ))}
