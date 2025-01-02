@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { MainLayout } from "@/components/layout/main-layout"
 import { ThemeProvider } from "@/components/theme-provider"
 import GalleryPage from "@/pages/gallery/page"
@@ -19,7 +19,7 @@ const About = () => <div>About Page</div>
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="smolmart-theme">
-      <Router>
+      <Router basename="/smolmart_prototype">
         <MainLayout>
           <Routes>
             <Route path="/" element={<Home />} />
