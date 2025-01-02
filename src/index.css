@@ -270,46 +270,46 @@
 .card[data-rarity="rare ultra"][data-supertype="pokémon"] .card__shine {
   --space: 5%;
   --angle: 133deg;
-  --angle2: -47deg;
   --imgsize: 50%;
 
   background-image: url("https://res.cloudinary.com/simey/image/upload/Dev/PokemonCards/rainbow2.jpg"),
     repeating-linear-gradient(
       var(--angle),
-      rgba(255, 161, 158, 0.5) calc(var(--space) * 1),
-      rgba(85, 178, 255, 0.5) calc(var(--space) * 2),
-      rgba(255, 199, 146, 0.5) calc(var(--space) * 3),
-      rgba(130, 255, 213, 0.5) calc(var(--space) * 4),
-      rgba(253, 170, 240, 0.5) calc(var(--space) * 5),
-      rgba(148, 241, 255, 0.5) calc(var(--space) * 6),
-      rgba(255, 161, 158, 0.5) calc(var(--space) * 7)
+      rgba(255, 161, 158, 0.35) calc(var(--space) * 1),
+      rgba(85, 178, 255, 0.35) calc(var(--space) * 2),
+      rgba(255, 199, 146, 0.35) calc(var(--space) * 3),
+      rgba(130, 255, 213, 0.35) calc(var(--space) * 4),
+      rgba(253, 170, 240, 0.35) calc(var(--space) * 5),
+      rgba(148, 241, 255, 0.35) calc(var(--space) * 6),
+      rgba(255, 161, 158, 0.35) calc(var(--space) * 7)
     ),
     repeating-linear-gradient(
-      var(--angle2),
-      rgba(14, 21, 46, 0.4) 0%,
-      hsla(180, 10%, 60%, 0.2) 3.8%,
-      hsla(180, 29%, 66%, 0.4) 4.5%,
-      hsla(180, 10%, 60%, 0.2) 5.2%,
-      rgba(14, 21, 46, 0.4) 10%,
-      rgba(14, 21, 46, 0.4) 12%
+      calc(var(--angle) - 180deg),
+      rgba(14, 21, 46, 0.3) 0%,
+      hsla(180, 10%, 60%, 0.15) 3.8%,
+      hsla(180, 29%, 66%, 0.3) 4.5%,
+      hsla(180, 10%, 60%, 0.15) 5.2%,
+      rgba(14, 21, 46, 0.3) 10%,
+      rgba(14, 21, 46, 0.3) 12%
     ),
     radial-gradient(
-      circle at var(--pos),
-      rgba(255, 255, 255, 0.8) 0%,
-      rgba(255, 255, 255, 0.2) 30%,
-      rgba(255, 255, 255, 0) 60%
+      farthest-corner circle at var(--pos),
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.15) 45%,
+      rgba(255, 255, 255, 0) 90%
     );
 
   background-blend-mode: color-dodge, overlay, screen;
-  background-size: 40%, 300% 300%, 200% 200%, 120% 120%;
+  background-size: var(--imgsize), 300% 300%, 200% 200%, 120% 120%;
   background-position: center,
-    calc(var(--posx) * 1.5%) calc(var(--posy) * 1.5%),
-    calc(var(--posx) * -1%) calc(var(--posy) * -1%),
+    calc(var(--posx) * 1%) calc(var(--posy) * 1%),
+    calc(200% - var(--posx) * 2%) calc(200% - var(--posy) * 2%),
     var(--pos);
 
-  filter: brightness(calc((var(--hyp) * 0.3) + 0.8)) contrast(1.8) saturate(1.2);
+  filter: brightness(calc((var(--hyp) * 0.2) + 0.9)) contrast(1.2) saturate(1.1);
   mix-blend-mode: color-dodge;
   opacity: var(--o);
+  transition: none;
 }
 
 .card[data-rarity="rare ultra"][data-supertype="pokémon"] .card__shine:after {
@@ -319,26 +319,28 @@
   transform: translateZ(0.2px);
   background-image: inherit;
   background-position: center,
-    calc(var(--posx) * -1.5%) calc(var(--posy) * -1.5%),
+    calc(200% - var(--posx) * 2%) calc(200% - var(--posy) * 2%),
     calc(var(--posx) * 1%) calc(var(--posy) * 1%),
     var(--pos);
   background-size: inherit;
 
-  filter: brightness(calc((var(--hyp) * 0.5) + 0.6)) contrast(1.6) saturate(1.4);
-  mix-blend-mode: soft-light;
-  opacity: calc(var(--o) * 0.5);
-  pointer-events: none;
+  filter: brightness(calc((var(--hyp) * 0.3) + 0.7)) contrast(1.1) saturate(1.4);
+  mix-blend-mode: exclusion;
+  opacity: calc(var(--o) * 0.4);
+  transition: none;
 }
 
 /* Limited Edition glare */
 .card[data-rarity="rare ultra"][data-supertype="pokémon"] .card__glare {
   background: radial-gradient(
-    circle at var(--pos),
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.25) 30%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 70%
+    farthest-corner circle at var(--pos),
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.12) 35%,
+    rgba(255, 255, 255, 0.03) 80%,
+    rgba(255, 255, 255, 0) 100%
   );
   mix-blend-mode: overlay;
-  opacity: calc(var(--o) * 0.7);
+  opacity: calc(var(--o) * 0.3);
+  transition: none;
+  transform: translateZ(0.2px) scale(1.5);
 }

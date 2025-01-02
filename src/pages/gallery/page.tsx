@@ -55,31 +55,78 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
   const [isHovered, setIsHovered] = useState(false)
   const [opacity, setOpacity] = useState(0)
+  const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 })
+  const animationFrameRef = useRef<number>()
+
+  useEffect(() => {
+    const animate = () => {
+      setRotation(prev => ({
+        x: prev.x + (targetRotation.x - prev.x) * 0.2,
+        y: prev.y + (targetRotation.y - prev.y) * 0.2
+      }))
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+    
+    if (isHovered) {
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [isHovered, targetRotation])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageRef.current) return
 
-    const image = imageRef.current
-    if (!image) return
-    
-    const rect = image.getBoundingClientRect()
+    const rect = imageRef.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
     
-    // Calculate angle between mouse and center point
-    const angleX = (e.clientY - centerY) / (rect.height / 2)
-    const angleY = (e.clientX - centerX) / (rect.width / 2)
+    // Calculate normalized position (-1 to 1)
+    const normalizedX = (e.clientX - centerX) / (rect.width / 2)
+    const normalizedY = (e.clientY - centerY) / (rect.height / 2)
     
-    // Limit rotation and make it smoother
-    const rotateX = Math.max(-4, Math.min(4, -angleX * 4))
-    const rotateY = Math.max(-4, Math.min(4, angleY * 4))
+    // Calculate hypot for intensity
+    const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
     
-    // Calculate mouse position relative to element center
-    const mouseX = ((e.clientX - rect.left) / rect.width) * 100
-    const mouseY = ((e.clientY - rect.top) / rect.height) * 100
+    // Increase tilt sensitivity but keep damping for smoothness
+    const dampingFactor = 0.4 // Increased from 0.3
+    const maxTilt = 6 // Increased from 4
+    const rotateX = -normalizedY * maxTilt * dampingFactor
+    const rotateY = normalizedX * maxTilt * dampingFactor
+    
+    // Calculate shine position based on rotation
+    const posx = ((e.clientX - rect.left) / rect.width) * 100
+    const posy = ((e.clientY - rect.top) / rect.height) * 100
+    
+    setTargetRotation({ x: rotateX, y: rotateY })
+    setMousePosition({ 
+      x: posx,
+      y: posy
+    })
 
-    setRotation({ x: rotateX, y: rotateY })
-    setMousePosition({ x: mouseX, y: mouseY })
+    // Update CSS variables for shine effect
+    if (imageRef.current) {
+      imageRef.current.style.setProperty('--rx', `${rotateX}deg`)
+      imageRef.current.style.setProperty('--ry', `${rotateY}deg`)
+      imageRef.current.style.setProperty('--hyp', hyp.toString())
+      imageRef.current.style.setProperty('--posx', `${posx}%`)
+      imageRef.current.style.setProperty('--posy', `${posy}%`)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    setTargetRotation({ x: 0, y: 0 })
+    setRotation({ x: 0, y: 0 })
+    setMousePosition({ x: 50, y: 50 })
+    setOpacity(0)
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -107,30 +154,26 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
             className="card__image-container relative aspect-square overflow-hidden rounded-t-lg"
             style={{
               transform: isHovered 
-                ? `perspective(1000px) 
+                ? `perspective(800px) 
                    rotateX(${rotation.x}deg) 
                    rotateY(${rotation.y}deg) 
-                   scale3d(1.02, 1.02, 1.02)
-                   translateZ(40px)`
-                : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0)',
-              transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
+                   scale3d(1.04, 1.04, 1.04)
+                   translateZ(50px)`
+                : 'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0)',
+              transition: 'transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
               transformStyle: 'preserve-3d',
               transformOrigin: 'center center',
               borderRadius: isHovered ? '0.5rem' : '0.5rem 0.5rem 0 0',
               '--o': opacity,
               '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
+              willChange: 'transform',
             } as React.CSSProperties}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => {
               setIsHovered(true)
               setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
             }}
-            onMouseLeave={() => {
-              setIsHovered(false)
-              setRotation({ x: 0, y: 0 })
-              setMousePosition({ x: 50, y: 50 })
-              setOpacity(0)
-            }}
+            onMouseLeave={handleMouseLeave}
           >
             <img
               src={artwork.image}
