@@ -423,23 +423,24 @@ export default function GalleryPage() {
           </div>
 
           <div className="flex-1 h-full overflow-y-auto p-4 md:p-6">
-            <motion.div 
-              variants={container}
-              initial="hidden"
-              animate="show"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 h-fit w-full mx-auto"
-              style={{
-                maxWidth: 'min(100%, 1800px)',
-                perspective: '1000px',
-                transformStyle: 'preserve-3d'
-              }}
-            >
-              {filteredArtworks.map((artwork) => (
-                <div key={artwork.id} className="h-fit" style={{ transformStyle: 'preserve-3d' }}>
-                  <ArtworkCard artwork={artwork} />
-                </div>
-              ))}
-            </motion.div>
+            <div className="max-w-[1400px] mx-auto">
+              <motion.div 
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 h-fit w-full"
+                style={{
+                  perspective: '1000px',
+                  transformStyle: 'preserve-3d'
+                }}
+              >
+                {filteredArtworks.map((artwork) => (
+                  <div key={artwork.id} className="h-fit" style={{ transformStyle: 'preserve-3d' }}>
+                    <ArtworkCard artwork={artwork} />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
           </div>
         </SidebarInset>
       </div>
