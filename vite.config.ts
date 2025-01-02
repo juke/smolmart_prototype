@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/smolmart_prototype/',
+  base: process.env.NODE_ENV === 'production' ? '/smolmart_prototype/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
