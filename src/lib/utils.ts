@@ -6,7 +6,5 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getImagePath(path: string) {
-  // Remove leading slash if it exists
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path
-  return new URL(`../assets/${cleanPath}`, import.meta.url).href
+  return path.startsWith('/') ? path : `/${path}`
 }
