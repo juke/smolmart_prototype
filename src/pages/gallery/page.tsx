@@ -16,7 +16,6 @@ import { Search, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crow
 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
-  index: number
 }
 
 const container = {
@@ -41,7 +40,7 @@ const item = {
   }
 }
 
-function ArtworkCard({ artwork, index }: ArtworkCardProps) {
+function ArtworkCard({ artwork }: ArtworkCardProps) {
   const imageRef = useRef<HTMLDivElement>(null)
   const [rotation, setRotation] = useState({ x: 0, y: 0 })
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
@@ -436,7 +435,7 @@ export default function GalleryPage() {
             >
               {filteredArtworks.map((artwork, index) => (
                 <div key={artwork.id} className="h-fit" style={{ transformStyle: 'preserve-3d' }}>
-                  <ArtworkCard artwork={artwork} index={index} />
+                  <ArtworkCard artwork={artwork} />
                 </div>
               ))}
             </motion.div>
