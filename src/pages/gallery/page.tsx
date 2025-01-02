@@ -230,14 +230,16 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
         </div>
         
         <div className="p-4 flex flex-col gap-2 rounded-b-lg">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
-            <span className="flex items-center gap-1 text-yellow-500 shrink-0">
-              <Banana className="h-4 w-4" />
-              <span>{artwork.bananas}</span>
-            </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
+              <span className="flex items-center gap-1 text-yellow-500 shrink-0">
+                <Banana className="h-4 w-4" />
+                <span>{artwork.bananas}</span>
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">by {artwork.artist}</p>
           </div>
-          <p className="text-sm text-muted-foreground">by {artwork.artist}</p>
           <div className="flex flex-wrap gap-1">
             {artwork.tags.map((tag) => (
               <span
@@ -390,7 +392,7 @@ export default function GalleryPage() {
         </Sidebar>
 
         <SidebarInset className="flex-1 flex flex-col min-w-0 md:pl-6">
-          <div className="sticky top-1 z-40 flex h-16 shrink-0 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="sticky top-1 z-40 flex h-14 shrink-0 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex w-full items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="md:hidden">
@@ -399,22 +401,34 @@ export default function GalleryPage() {
                   </Button>
                 </SidebarTrigger>
                 <div>
-                  <h2 className="text-base font-bold leading-none mb-0.5">Smol Gallery</h2>
+                  <h2 className="text-base font-bold leading-none">Smol Gallery</h2>
                   <p className="text-[10px] text-muted-foreground">
                     Discover and collect unique Smol artworks
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1 md:gap-2">
-                <Button variant="ghost" size="sm" className="md:h-9 md:w-auto md:px-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 md:w-auto md:px-3 flex items-center justify-center"
+                >
                   <Sparkles className="h-4 w-4" />
                   <span className="sr-only md:not-sr-only md:ml-2">Featured</span>
                 </Button>
-                <Button variant="ghost" size="sm" className="md:h-9 md:w-auto md:px-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 md:w-auto md:px-3 flex items-center justify-center"
+                >
                   <Flame className="h-4 w-4" />
                   <span className="sr-only md:not-sr-only md:ml-2">Popular</span>
                 </Button>
-                <Button variant="ghost" size="sm" className="md:h-9 md:w-auto md:px-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 md:w-auto md:px-3 flex items-center justify-center"
+                >
                   <Clock className="h-4 w-4" />
                   <span className="sr-only md:not-sr-only md:ml-2">Recent</span>
                 </Button>
