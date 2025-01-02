@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import artworksData from "@/data/artworks.json"
 import { Search, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star, Heart, Eye } from "lucide-react"
+import { getImagePath } from "@/lib/utils"
 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
@@ -167,7 +168,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             onMouseLeave={handleMouseLeave}
           >
             <img
-              src={artwork.image}
+              src={getImagePath(artwork.image)}
               alt={artwork.title}
               className="h-full w-full object-cover transform-gpu"
             />
