@@ -433,7 +433,7 @@ export default function GalleryPage() {
                 transformStyle: 'preserve-3d'
               }}
             >
-              {filteredArtworks.map((artwork, index) => (
+              {filteredArtworks.map((artwork) => (
                 <div key={artwork.id} className="h-fit" style={{ transformStyle: 'preserve-3d' }}>
                   <ArtworkCard artwork={artwork} />
                 </div>
