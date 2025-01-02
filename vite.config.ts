@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'node:url'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/smolmart_prototype/' : '/',
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/smolmart_prototype/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -22,4 +22,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))
