@@ -12,19 +12,11 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import artworksData from "@/data/artworks.json"
-import { Search, SlidersHorizontal, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star, Heart, Eye } from "lucide-react"
+import { Search, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star, Heart, Eye } from "lucide-react"
 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
   index: number
-}
-
-interface CardCoords {
-  x: number
-  y: number
-  rx: number
-  ry: number
-  hyp: number
 }
 
 const container = {
