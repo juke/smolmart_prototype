@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { 
   Sidebar, 
   SidebarContent, 
@@ -176,18 +176,102 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             <div className="card__glare absolute inset-0" />
             
             {/* Pokemon card-like stats overlay */}
-            <div 
-              className={`absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 opacity-0 transition-opacity duration-200 ${
-                isHovered ? 'opacity-100' : ''
-              }`}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"
             >
               {/* Rarity indicator */}
-              <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-black/60 text-xs font-bold text-white">
-                {artwork.status === "Limited Edition" ? "★ Ultra Rare" : "◇ Rare"}
-              </div>
+              <motion.div 
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
+                transition={{ 
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 300,
+                  opacity: { duration: 0.2 }
+                }}
+                className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold
+                  ${artwork.status === "Limited Edition" 
+                    ? "bg-gradient-to-r from-amber-600/90 via-yellow-500/90 to-amber-600/90 text-white shadow-lg shadow-amber-500/30" 
+                    : "bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 text-white shadow-md shadow-slate-500/20"
+                  }`}
+              >
+                <motion.div
+                  initial={false}
+                  animate={isHovered ? {
+                    scale: [1, 1.05, 1],
+                    opacity: [1, 0.9, 1],
+                  } : { scale: 1, opacity: 1 }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className={`flex items-center gap-1.5 ${
+                    artwork.status === "Limited Edition"
+                      ? "drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]"
+                      : "drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
+                  }`}
+                >
+                  {artwork.status === "Limited Edition" ? (
+                    <>
+                      <motion.span
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [1, 0.9, 1],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.5
+                        }}
+                        className="text-amber-200 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]"
+                      >
+                        ★
+                      </motion.span>
+                      <span className="font-bold text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                        Ultra Rare
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <motion.span
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [1, 0.9, 1],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.5
+                        }}
+                        className="text-blue-200 drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
+                      >
+                        ◇
+                      </motion.span>
+                      <span className="font-bold text-slate-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                        Rare
+                      </span>
+                    </>
+                  )}
+                </motion.div>
+              </motion.div>
               
               {/* Artist info - Sleek style */}
-              <div className="absolute top-2 left-2 flex items-center">
+              <motion.div 
+                initial={{ x: -20, opacity: 0 }}
+                animate={isHovered ? { x: 0, opacity: 1 } : { x: -20, opacity: 0 }}
+                transition={{ 
+                  duration: 0.3,
+                  ease: "easeOut",
+                  opacity: { duration: 0.2 }
+                }}
+                className="absolute top-2 left-2 flex items-center"
+              >
                 <div className="relative flex items-center group">
                   {/* Artist Avatar */}
                   <div className="relative flex items-center justify-center">
@@ -212,20 +296,43 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
               {/* Stats */}
-              <div className="absolute bottom-2 left-2 right-2 flex justify-between text-white">
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                className="absolute bottom-2 left-2 right-2 flex justify-between text-white"
+              >
+                <motion.div 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={isHovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    ease: [0.23, 1, 0.32, 1],
+                    delay: 0.1
+                  }}
+                  className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50"
+                >
                   <Heart className="w-3 h-3 text-red-500" />
                   <span className="text-xs font-medium">{artwork.bananas}k</span>
-                </div>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50">
+                </motion.div>
+                <motion.div 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={isHovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.3,
+                    ease: [0.23, 1, 0.32, 1],
+                    delay: 0.15
+                  }}
+                  className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50"
+                >
                   <Eye className="w-3 h-3 text-blue-500" />
                   <span className="text-xs font-medium">{Math.floor(artwork.bananas * 2.5)}k</span>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
         
@@ -375,16 +482,29 @@ export default function GalleryPage() {
               <div>
                 <h3 className="mb-2 text-sm font-medium">Categories</h3>
                 <div className="space-y-1">
-                  {artworksData.categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant={selectedCategory === category ? "secondary" : "ghost"}
-                      className="w-full justify-start"
-                      onClick={() => setSelectedCategory(category)}
-                    >
-                      {category}
-                    </Button>
-                  ))}
+                  {artworksData.categories.map((category) => {
+                    const categoryCount = artworksData.artworks.filter(
+                      artwork => category === "All" ? true : artwork.category === category
+                    ).length;
+                    
+                    return (
+                      <Button
+                        key={category}
+                        variant={selectedCategory === category ? "secondary" : "ghost"}
+                        className="w-full justify-between"
+                        onClick={() => setSelectedCategory(category)}
+                      >
+                        <span>{category}</span>
+                        <span className={`ml-auto inline-flex h-5 items-center justify-center rounded-full px-2 text-xs font-medium
+                          ${selectedCategory === category 
+                            ? "bg-primary/10 text-primary" 
+                            : "bg-muted text-muted-foreground"}`}
+                        >
+                          {categoryCount}
+                        </span>
+                      </Button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -407,29 +527,29 @@ export default function GalleryPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 md:gap-2">
+              <div className="flex items-center gap-2 md:gap-2">
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 md:w-auto md:px-3 flex items-center justify-center"
+                  className="h-11 w-11 md:w-auto md:px-3 flex items-center justify-center"
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-6 w-6 md:h-4 md:w-4" />
                   <span className="sr-only md:not-sr-only md:ml-2">Featured</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 md:w-auto md:px-3 flex items-center justify-center"
+                  className="h-11 w-11 md:w-auto md:px-3 flex items-center justify-center"
                 >
-                  <Flame className="h-4 w-4" />
+                  <Flame className="h-6 w-6 md:h-4 md:w-4" />
                   <span className="sr-only md:not-sr-only md:ml-2">Popular</span>
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 md:w-auto md:px-3 flex items-center justify-center"
+                  className="h-11 w-11 md:w-auto md:px-3 flex items-center justify-center"
                 >
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-6 w-6 md:h-4 md:w-4" />
                   <span className="sr-only md:not-sr-only md:ml-2">Recent</span>
                 </Button>
               </div>
@@ -439,20 +559,40 @@ export default function GalleryPage() {
           <div className="flex-1 h-full overflow-y-auto p-4 md:p-6">
             <div className="max-w-[1400px] mx-auto">
               <motion.div 
-                variants={container}
-                initial="hidden"
-                animate="show"
+                layout
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 h-fit w-full"
                 style={{
                   perspective: '1000px',
                   transformStyle: 'preserve-3d'
                 }}
               >
-                {filteredArtworks.map((artwork) => (
-                  <div key={artwork.id} className="h-fit" style={{ transformStyle: 'preserve-3d' }}>
-                    <ArtworkCard artwork={artwork} />
-                  </div>
-                ))}
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {filteredArtworks.map((artwork) => (
+                    <motion.div 
+                      key={artwork.id} 
+                      className="h-fit" 
+                      style={{ 
+                        transformStyle: 'preserve-3d',
+                        position: 'relative'
+                      }}
+                      layout
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      transition={{
+                        layout: {
+                          type: "spring",
+                          damping: 25,
+                          stiffness: 200,
+                          mass: 0.5
+                        },
+                        opacity: { duration: 0.2 }
+                      }}
+                    >
+                      <ArtworkCard artwork={artwork} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </motion.div>
             </div>
           </div>
