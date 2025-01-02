@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import artworksData from "@/data/artworks.json"
-import { Search, SlidersHorizontal, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star } from "lucide-react"
+import { Search, SlidersHorizontal, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star, Heart, Eye } from "lucide-react"
 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
@@ -182,6 +182,58 @@ function ArtworkCard({ artwork, index }: ArtworkCardProps) {
             />
             <div className="card__shine absolute inset-0" />
             <div className="card__glare absolute inset-0" />
+            
+            {/* Pokemon card-like stats overlay */}
+            <div 
+              className={`absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30 opacity-0 transition-opacity duration-200 ${
+                isHovered ? 'opacity-100' : ''
+              }`}
+            >
+              {/* Rarity indicator */}
+              <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-black/60 text-xs font-bold text-white">
+                {artwork.status === "Limited Edition" ? "★ Ultra Rare" : "◇ Rare"}
+              </div>
+              
+              {/* Artist info - Sleek style */}
+              <div className="absolute top-2 left-2 flex items-center">
+                <div className="relative flex items-center group">
+                  {/* Artist Avatar */}
+                  <div className="relative flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-200/40 via-yellow-300/40 to-yellow-500/40 animate-spin-slow" />
+                    <div className="relative w-[22px] h-[22px] rounded-full bg-gradient-to-br from-purple-400 to-pink-400 p-[1px]">
+                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                        <span className="text-[10px] font-bold bg-gradient-to-br from-purple-300 to-pink-300 text-transparent bg-clip-text">
+                          {artwork.artist[0].toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Artist Name - Compact Design */}
+                  <div className="h-[22px] flex flex-col justify-center ml-1.5">
+                    <div className="flex flex-col leading-[1.1]">
+                      <span className="text-[8px] font-medium text-purple-200/70 tracking-wider uppercase -mb-0.5">
+                        Artist
+                      </span>
+                      <div className="text-[11px] font-bold tracking-wide bg-gradient-to-r from-yellow-100 via-yellow-200 to-amber-200 text-transparent bg-clip-text">
+                        {artwork.artist}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Stats */}
+              <div className="absolute bottom-2 left-2 right-2 flex justify-between text-white">
+                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50">
+                  <Heart className="w-3 h-3 text-red-500" />
+                  <span className="text-xs font-medium">{artwork.bananas}k</span>
+                </div>
+                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50">
+                  <Eye className="w-3 h-3 text-blue-500" />
+                  <span className="text-xs font-medium">{Math.floor(artwork.bananas * 2.5)}k</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
