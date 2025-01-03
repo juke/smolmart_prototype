@@ -35,72 +35,10 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [isTouchDevice] = useState('ontouchstart' in window)
   const [showTapHint, setShowTapHint] = useState(false)
   const animationFrameRef = useRef<number>()
-  const gyroscopeEnabled = useRef(false)
   const lastTapRef = useRef(0)
   const touchStartTimeRef = useRef(0)
   const touchStartPosRef = useRef({ x: 0, y: 0 })
   const tapHintTimeoutRef = useRef<NodeJS.Timeout>()
-
-  useEffect(() => {
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (!gyroscopeEnabled.current || !isHovered) return;
-      
-      const x = event.beta ? event.beta / 2 : 0; // Tilt front/back
-      const y = event.gamma ? event.gamma / 2 : 0; // Tilt left/right
-      
-      const clampedX = Math.min(Math.max(x, -20), 20);
-      const clampedY = Math.min(Math.max(y, -20), 20);
-      
-      setTargetRotation({ x: -clampedX, y: clampedY });
-      
-      // Update shine effect position based on device orientation
-      const normalizedX = (clampedY + 20) / 40 * 100; // Convert -20,20 range to 0-100
-      const normalizedY = (clampedX + 20) / 40 * 100;
-      setMousePosition({ x: normalizedX, y: normalizedY });
-    };
-
-    if (isTouchDevice && isHovered) {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        (DeviceOrientationEvent as any).requestPermission()
-          .then((permissionState: string) => {
-            if (permissionState === 'granted') {
-              gyroscopeEnabled.current = true;
-              window.addEventListener('deviceorientation', handleOrientation);
-            }
-          })
-          .catch(console.error);
-      } else {
-        gyroscopeEnabled.current = true;
-        window.addEventListener('deviceorientation', handleOrientation);
-      }
-    }
-
-    return () => {
-      if (isTouchDevice) {
-        window.removeEventListener('deviceorientation', handleOrientation);
-      }
-    };
-  }, [isHovered, isTouchDevice]);
-
-  useEffect(() => {
-    const animate = () => {
-      setRotation(prev => ({
-        x: prev.x + (targetRotation.x - prev.x) * 0.2,
-        y: prev.y + (targetRotation.y - prev.y) * 0.2
-      }))
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
-    
-    if (isHovered) {
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-    }
-  }, [isHovered, targetRotation])
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
@@ -154,26 +92,23 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
       return
     }
 
-    // Only handle touch move if gyroscope is not enabled
-    if (!gyroscopeEnabled.current) {
-      const rect = imageRef.current.getBoundingClientRect()
-      const centerX = rect.left + rect.width / 2
-      const centerY = rect.top + rect.height / 2
-      
-      const normalizedX = (touch.clientX - centerX) / (rect.width / 2)
-      const normalizedY = (touch.clientY - centerY) / (rect.height / 2)
-      
-      const dampingFactor = 0.3
-      const maxTilt = 10
-      const rotateX = -normalizedY * maxTilt * dampingFactor
-      const rotateY = normalizedX * maxTilt * dampingFactor
-      
-      setTargetRotation({ x: rotateX, y: rotateY })
-      
-      const posx = ((touch.clientX - rect.left) / rect.width) * 100
-      const posy = ((touch.clientY - rect.top) / rect.height) * 100
-      setMousePosition({ x: posx, y: posy })
-    }
+    const rect = imageRef.current.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    const normalizedX = (touch.clientX - centerX) / (rect.width / 2)
+    const normalizedY = (touch.clientY - centerY) / (rect.height / 2)
+    
+    const dampingFactor = 0.3
+    const maxTilt = 10
+    const rotateX = -normalizedY * maxTilt * dampingFactor
+    const rotateY = normalizedX * maxTilt * dampingFactor
+    
+    setTargetRotation({ x: rotateX, y: rotateY })
+    
+    const posx = ((touch.clientX - rect.left) / rect.width) * 100
+    const posy = ((touch.clientY - rect.top) / rect.height) * 100
+    setMousePosition({ x: posx, y: posy })
   }
 
   const handleTouchEnd = () => {
@@ -197,8 +132,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     const normalizedX = (e.clientX - centerX) / (rect.width / 2)
     const normalizedY = (e.clientY - centerY) / (rect.height / 2)
     
-    const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
-    
     const dampingFactor = 0.4
     const maxTilt = 6
     const rotateX = -normalizedY * maxTilt * dampingFactor
@@ -209,14 +142,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     
     setTargetRotation({ x: rotateX, y: rotateY })
     setMousePosition({ x: posx, y: posy })
-
-    if (imageRef.current) {
-      imageRef.current.style.setProperty('--rx', `${rotateX}deg`)
-      imageRef.current.style.setProperty('--ry', `${rotateY}deg`)
-      imageRef.current.style.setProperty('--hyp', hyp.toString())
-      imageRef.current.style.setProperty('--posx', `${posx}%`)
-      imageRef.current.style.setProperty('--posy', `${posy}%`)
-    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -239,12 +164,32 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     }
   }, [])
 
+  useEffect(() => {
+    const animate = () => {
+      setRotation(prev => ({
+        x: prev.x + (targetRotation.x - prev.x) * 0.2,
+        y: prev.y + (targetRotation.y - prev.y) * 0.2
+      }))
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+    
+    if (isHovered) {
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [isHovered, targetRotation])
+
   return (
     <motion.div
       variants={item}
       data-rarity={artwork.status === "Limited Edition" ? "rare ultra" : "rare holo"}
       {...(artwork.status === "Limited Edition" ? { "data-supertype": "pokémon" } : {})}
-      className="card relative w-full border bg-card text-card-foreground group rounded-lg"
+      className="card relative w-full border bg-card text-card-foreground group rounded-lg select-none"
     >
       <div className="card__front">
         <div className="relative overflow-visible">

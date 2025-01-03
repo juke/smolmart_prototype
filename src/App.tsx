@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { MainLayout } from "@/components/layout/main-layout"
 import { ThemeProvider } from "@/components/theme-provider"
 import GalleryPage from "@/pages/gallery/page"
@@ -23,9 +23,12 @@ function App() {
         <MainLayout>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/artists" element={<Artists />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Navigate to="/gallery/" replace />} />
+            <Route path="/gallery/" element={<GalleryPage />} />
+            <Route path="/artists" element={<Navigate to="/artists/" replace />} />
+            <Route path="/artists/" element={<Artists />} />
+            <Route path="/about" element={<Navigate to="/about/" replace />} />
+            <Route path="/about/" element={<About />} />
           </Routes>
         </MainLayout>
       </Router>
