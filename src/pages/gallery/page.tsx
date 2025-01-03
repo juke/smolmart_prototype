@@ -39,6 +39,39 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const touchTimerRef = useRef<NodeJS.Timeout>()
   const holdHintTimeoutRef = useRef<NodeJS.Timeout>()
 
+  const handleMouseEnter = () => {
+    if (!isTouchDevice) {
+      setIsHovered(true)
+      setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+      setMousePosition({ x: 50, y: 50 })
+      
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+      const animate = () => {
+        setRotation(prev => ({
+          x: prev.x + (targetRotation.x - prev.x) * 0.2,
+          y: prev.y + (targetRotation.y - prev.y) * 0.2
+        }))
+        animationFrameRef.current = requestAnimationFrame(animate)
+      }
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (!isTouchDevice) {
+      setIsHovered(false)
+      setTargetRotation({ x: 0, y: 0 })
+      setRotation({ x: 0, y: 0 })
+      setMousePosition({ x: 50, y: 50 })
+      setOpacity(0)
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }
+
   // Add/remove overflow hidden class on body when card is active
   useEffect(() => {
     if (isHovered) {
@@ -228,7 +261,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
 
   return (
     <>
-      {isHovered && (
+      {isHovered && isTouchDevice && (
         <div 
           className="fixed inset-0 z-50 bg-transparent touch-none"
           onTouchMove={(e) => e.preventDefault()}
@@ -244,7 +277,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
           <div className="relative overflow-visible">
             <div 
               ref={imageRef}
-              className={`card__image-container relative aspect-square overflow-hidden rounded-t-lg ${isHovered ? 'touch-none' : ''}`}
+              className={`card__image-container relative aspect-square overflow-hidden rounded-t-lg ${isHovered && isTouchDevice ? 'touch-none' : ''}`}
               style={{
                 transform: isHovered 
                   ? `perspective(800px) 
@@ -260,16 +293,11 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                 '--o': opacity,
                 '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
                 willChange: 'transform',
-                touchAction: isHovered ? 'none' : 'auto',
+                touchAction: isHovered && isTouchDevice ? 'none' : 'auto',
               } as React.CSSProperties}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => {
-                if (!isTouchDevice) {
-                  setIsHovered(true)
-                  setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
-                }
-              }}
-              onMouseLeave={handleTouchEnd}
+              onMouseMove={!isTouchDevice ? handleMouseMove : undefined}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
