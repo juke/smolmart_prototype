@@ -33,12 +33,9 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [opacity, setOpacity] = useState(0)
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 })
   const [isTouchDevice] = useState('ontouchstart' in window)
-  const [showTapHint, setShowTapHint] = useState(false)
   const animationFrameRef = useRef<number>()
-  const lastTapRef = useRef(0)
   const touchStartTimeRef = useRef(0)
   const touchStartPosRef = useRef({ x: 0, y: 0 })
-  const tapHintTimeoutRef = useRef<NodeJS.Timeout>()
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
@@ -62,7 +59,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
 
     // If it's not a deliberate touch interaction (like scrolling), ignore
     const touch = e.touches[0]
-    const touchDuration = Date.now() - touchStartTimeRef.current
     const touchDistance = Math.hypot(
       touch.clientX - touchStartPosRef.current.x,
       touch.clientY - touchStartPosRef.current.y
@@ -136,15 +132,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
         return <Star className="h-4 w-4 text-blue-500" />
     }
   }
-
-  // Clean up tap hint timeout
-  useEffect(() => {
-    return () => {
-      if (tapHintTimeoutRef.current) {
-        clearTimeout(tapHintTimeoutRef.current)
-      }
-    }
-  }, [])
 
   useEffect(() => {
     const animate = () => {
