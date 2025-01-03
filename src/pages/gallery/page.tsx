@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Sidebar, 
@@ -500,110 +500,30 @@ function ArtistCard({ artist }: { artist: typeof artworksData.artists[0] }) {
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
 
-  const filteredArtworks = artworksData.artworks.filter((artwork) => {
-    const matchesCategory =
-      selectedCategory === "All" || artwork.category === selectedCategory
-    const matchesSearch =
-      artwork.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      artwork.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      artwork.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Debounce search query to prevent too many re-renders
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
-    return matchesCategory && matchesSearch
-  })
+  const filteredArtworks = useMemo(() => {
+    return artworksData.artworks.filter((artwork) => {
+      const matchesCategory =
+        selectedCategory === "All" || artwork.category === selectedCategory
+      const matchesSearch =
+        artwork.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        artwork.artist.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        artwork.tags.some(tag => tag.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
+
+      return matchesCategory && matchesSearch
+    })
+  }, [selectedCategory, debouncedSearchQuery])
 
   const { stats } = artworksData
-
-  const SidebarContent = () => (
-    <div className="space-y-6 p-4">
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg border p-2">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Volume</span>
-            </div>
-            <p className="mt-1 font-medium">{stats.totalVolume}</p>
-          </div>
-          <div className="rounded-lg border p-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Floor</span>
-            </div>
-            <p className="mt-1 font-medium">{stats.floorPrice}</p>
-          </div>
-          <div className="rounded-lg border p-2">
-            <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Best Offer</span>
-            </div>
-            <p className="mt-1 font-medium">{stats.bestOffer}</p>
-          </div>
-          <div className="rounded-lg border p-2">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Recent</span>
-            </div>
-            <p className="mt-1 font-medium">{stats.recentSales}</p>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-sm font-medium">Top Artists</h3>
-        <div className="space-y-2">
-          {artworksData.artists.map((artist) => (
-            <ArtistCard key={artist.name} artist={artist} />
-          ))}
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Search artworks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-9"
-          />
-          <Button variant="ghost" size="icon" className="shrink-0">
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-sm font-medium">Categories</h3>
-        <div className="space-y-1">
-          {artworksData.categories.map((category) => {
-            const categoryCount = artworksData.artworks.filter(
-              artwork => category === "All" ? true : artwork.category === category
-            ).length;
-            
-            return (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "secondary" : "ghost"}
-                className="w-full justify-between"
-                onClick={() => setSelectedCategory(category)}
-              >
-                <span>{category}</span>
-                <span className={`ml-auto inline-flex h-5 items-center justify-center rounded-full px-2 text-xs font-medium
-                  ${selectedCategory === category 
-                    ? "bg-primary/10 text-primary" 
-                    : "bg-muted text-muted-foreground"}`}
-                >
-                  {categoryCount}
-                </span>
-              </Button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  )
 
   return (
     <div className="relative flex min-h-full flex-col">
@@ -621,7 +541,96 @@ export default function GalleryPage() {
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="w-[280px] p-0">
-                    <SidebarContent />
+                    <div className="space-y-6 p-4">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="rounded-lg border p-2">
+                            <div className="flex items-center gap-2">
+                              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">Volume</span>
+                            </div>
+                            <p className="mt-1 font-medium">{stats.totalVolume}</p>
+                          </div>
+                          <div className="rounded-lg border p-2">
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">Floor</span>
+                            </div>
+                            <p className="mt-1 font-medium">{stats.floorPrice}</p>
+                          </div>
+                          <div className="rounded-lg border p-2">
+                            <div className="flex items-center gap-2">
+                              <Flame className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">Best Offer</span>
+                            </div>
+                            <p className="mt-1 font-medium">{stats.bestOffer}</p>
+                          </div>
+                          <div className="rounded-lg border p-2">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">Recent</span>
+                            </div>
+                            <p className="mt-1 font-medium">{stats.recentSales}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="mb-2 text-sm font-medium">Top Artists</h3>
+                        <div className="space-y-2">
+                          {artworksData.artists.map((artist) => (
+                            <ArtistCard key={artist.name} artist={artist} />
+                          ))}
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <div className="relative w-full">
+                            <Input
+                              placeholder="Search artworks..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="h-9"
+                            />
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                              <Search className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="mb-2 text-sm font-medium">Categories</h3>
+                        <div className="space-y-1">
+                          {artworksData.categories.map((category) => {
+                            const categoryCount = artworksData.artworks.filter(
+                              artwork => category === "All" ? true : artwork.category === category
+                            ).length;
+                            
+                            return (
+                              <Button
+                                key={category}
+                                variant={selectedCategory === category ? "secondary" : "ghost"}
+                                className="w-full justify-between"
+                                onClick={() => setSelectedCategory(category)}
+                              >
+                                <span>{category}</span>
+                                <span className={`ml-auto inline-flex h-5 items-center justify-center rounded-full px-2 text-xs font-medium
+                                  ${selectedCategory === category 
+                                    ? "bg-primary/10 text-primary" 
+                                    : "bg-muted text-muted-foreground"}`}
+                                >
+                                  {categoryCount}
+                                </span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   </SheetContent>
                 </Sheet>
                 <h2 className="text-lg font-semibold tracking-tight">Smol Gallery</h2>
@@ -709,13 +718,9 @@ export default function GalleryPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-8 w-full pr-8 text-sm"
               />
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-0 top-0 h-8 w-8"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
+              <div className="absolute right-0 top-0 h-8 w-8 flex items-center justify-center pointer-events-none">
+                <Search className="h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
           </div>
         </div>
@@ -727,7 +732,96 @@ export default function GalleryPage() {
           {/* Floating Sidebar */}
           <div className="fixed w-[280px] hidden md:block">
             <div className="rounded-lg border bg-card shadow-lg">
-              <SidebarContent />
+              <div className="space-y-6 p-4">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg border p-2">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Volume</span>
+                      </div>
+                      <p className="mt-1 font-medium">{stats.totalVolume}</p>
+                    </div>
+                    <div className="rounded-lg border p-2">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Floor</span>
+                      </div>
+                      <p className="mt-1 font-medium">{stats.floorPrice}</p>
+                    </div>
+                    <div className="rounded-lg border p-2">
+                      <div className="flex items-center gap-2">
+                        <Flame className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Best Offer</span>
+                      </div>
+                      <p className="mt-1 font-medium">{stats.bestOffer}</p>
+                    </div>
+                    <div className="rounded-lg border p-2">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Recent</span>
+                      </div>
+                      <p className="mt-1 font-medium">{stats.recentSales}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 text-sm font-medium">Top Artists</h3>
+                  <div className="space-y-2">
+                    {artworksData.artists.map((artist) => (
+                      <ArtistCard key={artist.name} artist={artist} />
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-full">
+                      <Input
+                        placeholder="Search artworks..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-9"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 text-sm font-medium">Categories</h3>
+                  <div className="space-y-1">
+                    {artworksData.categories.map((category) => {
+                      const categoryCount = artworksData.artworks.filter(
+                        artwork => category === "All" ? true : artwork.category === category
+                      ).length;
+                      
+                      return (
+                        <Button
+                          key={category}
+                          variant={selectedCategory === category ? "secondary" : "ghost"}
+                          className="w-full justify-between"
+                          onClick={() => setSelectedCategory(category)}
+                        >
+                          <span>{category}</span>
+                          <span className={`ml-auto inline-flex h-5 items-center justify-center rounded-full px-2 text-xs font-medium
+                            ${selectedCategory === category 
+                              ? "bg-primary/10 text-primary" 
+                              : "bg-muted text-muted-foreground"}`}
+                          >
+                            {categoryCount}
+                          </span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -735,41 +829,55 @@ export default function GalleryPage() {
           <div className="md:pl-[calc(280px+1rem)]">
             <motion.div 
               layout
-              className="grid auto-rows-max grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 w-full px-2 md:px-3"
+              className="grid auto-rows-max grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 w-full px-2 md:px-3 relative min-h-[200px]"
               style={{
                 perspective: '1000px',
-                transformStyle: 'preserve-3d',
+                transformStyle: 'preserve-3d'
               }}
             >
-              <AnimatePresence mode="popLayout" initial={false}>
-                {filteredArtworks.map((artwork) => (
-                  <motion.div 
-                    key={artwork.id} 
-                    className="h-fit" 
-                    style={{ 
-                      transformStyle: 'preserve-3d',
-                      position: 'relative',
-                      padding: '1.5rem',
-                      margin: '-1.5rem'
-                    }}
-                    layout
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{
-                      layout: {
-                        type: "spring",
-                        damping: 25,
-                        stiffness: 200,
-                        mass: 0.5
-                      },
-                      opacity: { duration: 0.2 }
-                    }}
-                  >
-                    <ArtworkCard artwork={artwork} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              {filteredArtworks.map((artwork) => (
+                <motion.div 
+                  key={artwork.id} 
+                  className="h-fit" 
+                  style={{ 
+                    transformStyle: 'preserve-3d',
+                    position: 'relative',
+                    padding: '1.5rem',
+                    margin: '-1.5rem'
+                  }}
+                  layout="position"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ 
+                    scale: 1, 
+                    opacity: 1,
+                    transition: {
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 25,
+                      mass: 0.5
+                    }
+                  }}
+                  exit={{ 
+                    scale: 0.9, 
+                    opacity: 0,
+                    transition: { duration: 0.15 }
+                  }}
+                >
+                  <ArtworkCard artwork={artwork} />
+                </motion.div>
+              ))}
+
+              {filteredArtworks.length === 0 && (
+                <motion.div
+                  key="empty"
+                  className="absolute inset-0 flex items-center justify-center text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p>No artworks found matching your criteria</p>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </div>
