@@ -49,7 +49,51 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [opacity, setOpacity] = useState(0)
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 })
+  const [isTouchDevice] = useState('ontouchstart' in window)
   const animationFrameRef = useRef<number>()
+  const gyroscopeEnabled = useRef(false)
+
+  useEffect(() => {
+    let gyroscope: DeviceOrientationEvent | null = null;
+    
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      if (!gyroscopeEnabled.current || !isHovered) return;
+      
+      // Get beta (x-axis rotation) and gamma (y-axis rotation) values
+      const x = event.beta ? -event.beta / 5 : 0; // Convert to reasonable rotation values
+      const y = event.gamma ? event.gamma / 5 : 0;
+      
+      // Clamp values to prevent extreme rotations
+      const clampedX = Math.min(Math.max(x, -10), 10);
+      const clampedY = Math.min(Math.max(y, -10), 10);
+      
+      setTargetRotation({ x: clampedX, y: clampedY });
+    };
+
+    if (isTouchDevice && isHovered) {
+      // Request permission for device orientation on iOS devices
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        (DeviceOrientationEvent as any).requestPermission()
+          .then((permissionState: string) => {
+            if (permissionState === 'granted') {
+              gyroscopeEnabled.current = true;
+              window.addEventListener('deviceorientation', handleOrientation);
+            }
+          })
+          .catch(console.error);
+      } else {
+        // For non-iOS devices
+        gyroscopeEnabled.current = true;
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+    }
+
+    return () => {
+      if (isTouchDevice) {
+        window.removeEventListener('deviceorientation', handleOrientation);
+      }
+    };
+  }, [isHovered, isTouchDevice]);
 
   useEffect(() => {
     const animate = () => {
@@ -71,8 +115,71 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     }
   }, [isHovered, targetRotation])
 
+  const handleTouchStart = () => {
+    setIsHovered(true)
+    setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+    
+    // Set initial touch position for shine effect
+    if (imageRef.current) {
+      const rect = imageRef.current.getBoundingClientRect()
+      setMousePosition({
+        x: 50,
+        y: 50
+      })
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsHovered(false)
+    setTargetRotation({ x: 0, y: 0 })
+    setRotation({ x: 0, y: 0 })
+    setMousePosition({ x: 50, y: 50 })
+    setOpacity(0)
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!imageRef.current || !isHovered) return
+    
+    const touch = e.touches[0]
+    const rect = imageRef.current.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    // Calculate normalized position (-1 to 1)
+    const normalizedX = (touch.clientX - centerX) / (rect.width / 2)
+    const normalizedY = (touch.clientY - centerY) / (rect.height / 2)
+    
+    // Calculate hypot for intensity
+    const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
+    
+    const dampingFactor = 0.4
+    const maxTilt = 6
+    const rotateX = -normalizedY * maxTilt * dampingFactor
+    const rotateY = normalizedX * maxTilt * dampingFactor
+    
+    // Calculate shine position
+    const posx = ((touch.clientX - rect.left) / rect.width) * 100
+    const posy = ((touch.clientY - rect.top) / rect.height) * 100
+    
+    if (!gyroscopeEnabled.current) {
+      setTargetRotation({ x: rotateX, y: rotateY })
+    }
+    setMousePosition({ x: posx, y: posy })
+
+    if (imageRef.current) {
+      imageRef.current.style.setProperty('--rx', `${rotateX}deg`)
+      imageRef.current.style.setProperty('--ry', `${rotateY}deg`)
+      imageRef.current.style.setProperty('--hyp', hyp.toString())
+      imageRef.current.style.setProperty('--posx', `${posx}%`)
+      imageRef.current.style.setProperty('--posy', `${posy}%`)
+    }
+  }
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageRef.current) return
+    if (!imageRef.current || isTouchDevice) return
 
     const rect = imageRef.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
@@ -85,40 +192,23 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     // Calculate hypot for intensity
     const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
     
-    // Increase tilt sensitivity but keep damping for smoothness
-    const dampingFactor = 0.4 // Increased from 0.3
-    const maxTilt = 6 // Increased from 4
+    const dampingFactor = 0.4
+    const maxTilt = 6
     const rotateX = -normalizedY * maxTilt * dampingFactor
     const rotateY = normalizedX * maxTilt * dampingFactor
     
-    // Calculate shine position based on rotation
     const posx = ((e.clientX - rect.left) / rect.width) * 100
     const posy = ((e.clientY - rect.top) / rect.height) * 100
     
     setTargetRotation({ x: rotateX, y: rotateY })
-    setMousePosition({ 
-      x: posx,
-      y: posy
-    })
+    setMousePosition({ x: posx, y: posy })
 
-    // Update CSS variables for shine effect
     if (imageRef.current) {
       imageRef.current.style.setProperty('--rx', `${rotateX}deg`)
       imageRef.current.style.setProperty('--ry', `${rotateY}deg`)
       imageRef.current.style.setProperty('--hyp', hyp.toString())
       imageRef.current.style.setProperty('--posx', `${posx}%`)
       imageRef.current.style.setProperty('--posy', `${posy}%`)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    setIsHovered(false)
-    setTargetRotation({ x: 0, y: 0 })
-    setRotation({ x: 0, y: 0 })
-    setMousePosition({ x: 50, y: 50 })
-    setOpacity(0)
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current)
     }
   }
 
@@ -163,10 +253,15 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             } as React.CSSProperties}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => {
-              setIsHovered(true)
-              setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+              if (!isTouchDevice) {
+                setIsHovered(true)
+                setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+              }
             }}
-            onMouseLeave={handleMouseLeave}
+            onMouseLeave={handleTouchEnd}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <img
               src={getImagePath(artwork.image)}
@@ -637,13 +732,13 @@ export default function GalleryPage() {
           </div>
 
           {/* Grid Content */}
-          <div className="md:pl-[calc(280px+1rem)] overflow-visible">
+          <div className="md:pl-[calc(280px+1rem)]">
             <motion.div 
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 h-fit w-full px-2 md:px-3"
+              className="grid auto-rows-max grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 w-full px-2 md:px-3"
               style={{
                 perspective: '1000px',
-                transformStyle: 'preserve-3d'
+                transformStyle: 'preserve-3d',
               }}
             >
               <AnimatePresence mode="popLayout" initial={false}>
