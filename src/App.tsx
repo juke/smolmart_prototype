@@ -19,7 +19,7 @@ const About = () => <div>About Page</div>
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="smolmart-theme">
-      <Router>
+      <Router basename="/smolmart_prototype">
         <MainLayout>
           <Routes>
             <Route path="/" element={<Home />} />
