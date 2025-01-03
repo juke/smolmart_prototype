@@ -39,28 +39,32 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
-
-    // Single tap to toggle details
-    setIsHovered(!isHovered)
-    setOpacity(!isHovered ? (artwork.status === "Limited Edition" ? 0.6 : 0.25) : 0)
-    setMousePosition({ x: 50, y: 50 })
+    
+    // Set initial position for tilt effect
+    if (!isHovered) {
+      setIsHovered(true)
+      setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+      setMousePosition({ x: 50, y: 50 })
+      
+      // Start animation frame for smooth tilt
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+      const animate = () => {
+        setRotation(prev => ({
+          x: prev.x + (targetRotation.x - prev.x) * 0.2,
+          y: prev.y + (targetRotation.y - prev.y) * 0.2
+        }))
+        animationFrameRef.current = requestAnimationFrame(animate)
+      }
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!imageRef.current || !isHovered) return
+    if (!imageRef.current) return
 
     const touch = e.touches[0]
-    const touchDistance = Math.hypot(
-      touch.clientX - touchStartPosRef.current.x,
-      touch.clientY - touchStartPosRef.current.y
-    )
-
-    // If it's a scroll gesture, end the effect
-    if (touchDistance > 10) {
-      handleTouchEnd()
-      return
-    }
-
     const rect = imageRef.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
@@ -155,7 +159,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
         <div className="relative overflow-visible">
           <div 
             ref={imageRef}
-            className="card__image-container relative aspect-square overflow-hidden rounded-t-lg"
+            className="card__image-container relative aspect-square overflow-hidden rounded-t-lg touch-none"
             style={{
               transform: isHovered 
                 ? `perspective(800px) 
@@ -171,7 +175,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
               '--o': opacity,
               '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
               willChange: 'transform',
-              touchAction: 'manipulation',
+              touchAction: 'none',
             } as React.CSSProperties}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => {
