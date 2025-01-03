@@ -225,7 +225,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
         <div className="relative overflow-visible">
           <div 
             ref={imageRef}
-            className="card__image-container relative aspect-square overflow-hidden rounded-t-lg"
+            className={`card__image-container relative aspect-square overflow-hidden rounded-t-lg ${isHovered ? 'touch-none' : ''}`}
             style={{
               transform: isHovered 
                 ? `perspective(800px) 
