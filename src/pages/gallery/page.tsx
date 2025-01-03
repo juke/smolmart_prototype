@@ -42,36 +42,18 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
-    const now = Date.now()
-    touchStartTimeRef.current = now
+    touchStartTimeRef.current = Date.now()
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
 
-    // Check for double tap
-    const timeSinceLastTap = now - lastTapRef.current
-    const isDoubleTap = timeSinceLastTap < 300
-    lastTapRef.current = now
-
-    if (isDoubleTap) {
-      e.preventDefault() // Prevent zoom
-      const newHovered = !isHovered
-      setIsHovered(newHovered)
-      setOpacity(newHovered ? (artwork.status === "Limited Edition" ? 0.6 : 0.25) : 0)
+    // Single tap to show details
+    if (!isHovered) {
+      setIsHovered(true)
+      setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
       setMousePosition({ x: 50, y: 50 })
-      setShowTapHint(false)
-      if (tapHintTimeoutRef.current) {
-        clearTimeout(tapHintTimeoutRef.current)
-      }
     } else {
-      // Show tap hint on single tap only if not already hovered
-      if (!isHovered) {
-        setShowTapHint(true)
-        if (tapHintTimeoutRef.current) {
-          clearTimeout(tapHintTimeoutRef.current)
-        }
-        tapHintTimeoutRef.current = setTimeout(() => {
-          setShowTapHint(false)
-        }, 2000)
-      }
+      setIsHovered(false)
+      setOpacity(0)
+      setMousePosition({ x: 50, y: 50 })
     }
   }
 
@@ -86,8 +68,8 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
       touch.clientY - touchStartPosRef.current.y
     )
 
-    // If it's a quick swipe or scroll, end the effect
-    if (touchDuration < 200 && touchDistance > 20) {
+    // If it's a scroll gesture, end the effect
+    if (touchDistance > 10) {
       handleTouchEnd()
       return
     }
@@ -233,21 +215,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             <div className="card__shine absolute inset-0" />
             <div className="card__glare absolute inset-0" />
             
-            {/* Tap hint indicator */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ 
-                opacity: showTapHint ? 1 : 0,
-                scale: showTapHint ? 1 : 0.8,
-              }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            >
-              <div className="bg-black/80 backdrop-blur-sm px-3 py-2 rounded-full text-white text-sm font-medium shadow-lg">
-                Double tap for details
-              </div>
-            </motion.div>
-
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}
