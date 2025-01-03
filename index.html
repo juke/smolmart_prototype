@@ -7,15 +7,13 @@
     <title>SmolMart</title>
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
-      // MIT License
       // https://github.com/rafgraph/spa-github-pages
       (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
+        if (l.search[1] === 'p') {
+          var decoded = '/' + l.search.split('p=/')[1].split('&')[0];
+          var queryParams = l.search.includes('&q=') ? '?' + l.search.split('&q=')[1] : '';
           window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
+            l.pathname.split('?')[0] + decoded + queryParams + l.hash
           );
         }
       }(window.location))

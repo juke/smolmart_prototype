@@ -5,19 +5,17 @@
     <title>SmolMart</title>
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
-      // MIT License
       // https://github.com/rafgraph/spa-github-pages
-      var segmentCount = 1;
+      var pathSegmentsToKeep = 1;
+
       var l = window.location;
+      var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?p=/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/') +
+        (l.search ? '&q=' + l.search.slice(1) : '') +
+        l.hash;
 
-      // Preserve the URL path after the base path
-      var pathSegments = l.pathname.slice(1).split('/').slice(segmentCount);
-      var redirectPath = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + 
-        (pathSegments.length > 0 ? '/' + pathSegments.join('/') : '') +
-        l.search + l.hash;
-
-      window.location.replace(redirectPath);
+      window.location.replace(redirectUrl);
     </script>
   </head>
   <body>
