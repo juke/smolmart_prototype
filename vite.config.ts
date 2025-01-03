@@ -9,27 +9,18 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    },
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
+    }
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    modulePreload: {
+      polyfill: true
+    },
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html')
-      },
       output: {
-        format: 'es',
-        entryFileNames: `assets/[name].[hash].js`,
-        chunkFileNames: `assets/[name].[hash].js`,
-        assetFileNames: `assets/[name].[hash].[ext]`
+        manualChunks: undefined
       }
-    }
-  },
-  server: {
-    headers: {
-      'Content-Type': 'text/javascript'
     }
   }
 })
