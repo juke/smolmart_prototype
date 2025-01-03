@@ -19,16 +19,16 @@ const About = () => <div>About Page</div>
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="smolmart-theme">
-      <Router basename={import.meta.env.BASE_URL}>
+      <Router basename="/smolmart_prototype">
         <MainLayout>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/gallery" element={<Navigate to="/gallery/" replace />} />
-            <Route path="/gallery/" element={<GalleryPage />} />
-            <Route path="/artists" element={<Navigate to="/artists/" replace />} />
-            <Route path="/artists/" element={<Artists />} />
-            <Route path="/about" element={<Navigate to="/about/" replace />} />
-            <Route path="/about/" element={<About />} />
+            <Route path="gallery" element={<Navigate to="/gallery/" replace />} />
+            <Route path="gallery/" element={<GalleryPage />} />
+            <Route path="artists" element={<Navigate to="/artists/" replace />} />
+            <Route path="artists/" element={<Artists />} />
+            <Route path="about" element={<Navigate to="/about/" replace />} />
+            <Route path="about/" element={<About />} />
           </Routes>
         </MainLayout>
       </Router>

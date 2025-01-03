@@ -263,7 +263,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                   stiffness: 300,
                   opacity: { duration: 0.2 }
                 }}
-                className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold
+                className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold select-none
                   ${artwork.status === "Limited Edition" 
                     ? "bg-gradient-to-r from-amber-600/90 via-yellow-500/90 to-amber-600/90 text-white shadow-lg shadow-amber-500/30" 
                     : "bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 text-white shadow-md shadow-slate-500/20"
@@ -280,7 +280,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className={`flex items-center gap-1.5 ${
+                  className={`flex items-center gap-1.5 select-none ${
                     artwork.status === "Limited Edition"
                       ? "drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]"
                       : "drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
@@ -403,7 +403,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
           </div>
         </div>
         
-        <div className="p-4 flex flex-col gap-2 rounded-b-lg">
+        <div className="p-4 flex flex-col gap-2 rounded-b-lg select-none">
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
