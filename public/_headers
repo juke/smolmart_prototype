@@ -1,11 +1,9 @@
 /*
-  Content-Type: text/javascript
+  Permissions-Policy: interest-cohort=(), private-state-token-redemption=(), private-state-token-issuance=(), browsing-topics=()
   X-Content-Type-Options: nosniff
+  Content-Type: text/javascript
 
 /*.js
-  Content-Type: text/javascript
-
-/*.mjs
   Content-Type: text/javascript
 
 /*.css

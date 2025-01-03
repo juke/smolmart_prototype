@@ -1,33 +1,16 @@
 import { useState, useRef, useEffect, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset
-} from "@/components/ui/sidebar"
+import { motion } from "framer-motion"
+import { Search, Sparkles, Flame, Clock, TrendingUp, Banana, Palette, Crown, Star, Heart, Eye, PanelLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import artworksData from "@/data/artworks.json"
-import { Search, Sparkles, Flame, Clock, TrendingUp, Banana, Menu, Palette, Crown, Star, Heart, Eye, PanelLeft } from "lucide-react"
 import { getImagePath } from "@/lib/utils"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface ArtworkCardProps {
   artwork: typeof artworksData.artworks[0]
-}
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
 }
 
 const item = {
@@ -54,16 +37,12 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const gyroscopeEnabled = useRef(false)
 
   useEffect(() => {
-    let gyroscope: DeviceOrientationEvent | null = null;
-    
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (!gyroscopeEnabled.current || !isHovered) return;
       
-      // Get beta (x-axis rotation) and gamma (y-axis rotation) values
-      const x = event.beta ? -event.beta / 5 : 0; // Convert to reasonable rotation values
+      const x = event.beta ? -event.beta / 5 : 0;
       const y = event.gamma ? event.gamma / 5 : 0;
       
-      // Clamp values to prevent extreme rotations
       const clampedX = Math.min(Math.max(x, -10), 10);
       const clampedY = Math.min(Math.max(y, -10), 10);
       
@@ -71,7 +50,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     };
 
     if (isTouchDevice && isHovered) {
-      // Request permission for device orientation on iOS devices
       if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
         (DeviceOrientationEvent as any).requestPermission()
           .then((permissionState: string) => {
@@ -82,7 +60,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
           })
           .catch(console.error);
       } else {
-        // For non-iOS devices
         gyroscopeEnabled.current = true;
         window.addEventListener('deviceorientation', handleOrientation);
       }
@@ -119,9 +96,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     setIsHovered(true)
     setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
     
-    // Set initial touch position for shine effect
     if (imageRef.current) {
-      const rect = imageRef.current.getBoundingClientRect()
       setMousePosition({
         x: 50,
         y: 50
@@ -148,11 +123,9 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
     
-    // Calculate normalized position (-1 to 1)
     const normalizedX = (touch.clientX - centerX) / (rect.width / 2)
     const normalizedY = (touch.clientY - centerY) / (rect.height / 2)
     
-    // Calculate hypot for intensity
     const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
     
     const dampingFactor = 0.4
@@ -160,7 +133,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     const rotateX = -normalizedY * maxTilt * dampingFactor
     const rotateY = normalizedX * maxTilt * dampingFactor
     
-    // Calculate shine position
     const posx = ((touch.clientX - rect.left) / rect.width) * 100
     const posy = ((touch.clientY - rect.top) / rect.height) * 100
     
@@ -185,11 +157,9 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
     
-    // Calculate normalized position (-1 to 1)
     const normalizedX = (e.clientX - centerX) / (rect.width / 2)
     const normalizedY = (e.clientY - centerY) / (rect.height / 2)
     
-    // Calculate hypot for intensity
     const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
     
     const dampingFactor = 0.4
@@ -271,14 +241,12 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             <div className="card__shine absolute inset-0" />
             <div className="card__glare absolute inset-0" />
             
-            {/* Pokemon card-like stats overlay */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}
               transition={{ duration: 0.2 }}
               className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"
             >
-              {/* Rarity indicator */}
               <motion.div 
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
@@ -357,7 +325,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                 </motion.div>
               </motion.div>
               
-              {/* Artist info - Sleek style */}
               <motion.div 
                 initial={{ x: -20, opacity: 0 }}
                 animate={isHovered ? { x: 0, opacity: 1 } : { x: -20, opacity: 0 }}
@@ -369,7 +336,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                 className="absolute top-2 left-2 flex items-center"
               >
                 <div className="relative flex items-center group">
-                  {/* Artist Avatar */}
                   <div className="relative flex items-center justify-center">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-200/40 via-yellow-300/40 to-yellow-500/40 animate-spin-slow" />
                     <div className="relative w-[22px] h-[22px] rounded-full bg-gradient-to-br from-purple-400 to-pink-400 p-[1px]">
@@ -380,7 +346,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                       </div>
                     </div>
                   </div>
-                  {/* Artist Name - Compact Design */}
                   <div className="h-[22px] flex flex-col justify-center ml-1.5">
                     <div className="flex flex-col leading-[1.1]">
                       <span className="text-[8px] font-medium text-purple-200/70 tracking-wider uppercase -mb-0.5">
@@ -394,7 +359,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
                 </div>
               </motion.div>
               
-              {/* Stats */}
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -502,7 +466,6 @@ export default function GalleryPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
 
-  // Debounce search query to prevent too many re-renders
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery)
@@ -527,11 +490,9 @@ export default function GalleryPage() {
 
   return (
     <div className="relative flex min-h-full flex-col">
-      {/* Header */}
       <div className="fixed top-[3.54rem] left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto max-w-[1400px] py-3 md:py-6 px-4">
           <div className="flex flex-col gap-2 md:gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Mobile Layout */}
             <div className="flex items-center justify-between md:hidden w-full">
               <div className="flex items-center gap-3">
                 <Sheet>
@@ -667,7 +628,6 @@ export default function GalleryPage() {
               </div>
             </div>
 
-            {/* Desktop Layout */}
             <div className="hidden md:flex items-center gap-4">
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight">Smol Gallery</h2>
@@ -709,7 +669,6 @@ export default function GalleryPage() {
             </div>
           </div>
 
-          {/* Mobile Search Bar */}
           <div className="flex md:hidden mt-2">
             <div className="relative w-full">
               <Input
@@ -726,10 +685,8 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="flex-1 pt-32 md:pt-32">
         <div className="mx-auto max-w-[1400px] relative px-4 md:px-0">
-          {/* Floating Sidebar */}
           <div className="fixed w-[280px] hidden md:block">
             <div className="rounded-lg border bg-card shadow-lg">
               <div className="space-y-6 p-4">
@@ -825,7 +782,6 @@ export default function GalleryPage() {
             </div>
           </div>
 
-          {/* Grid Content */}
           <div className="md:pl-[calc(280px+1rem)]">
             <motion.div 
               layout
