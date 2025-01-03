@@ -33,18 +33,31 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [opacity, setOpacity] = useState(0)
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 })
   const [isTouchDevice] = useState('ontouchstart' in window)
+  const [showHoldHint, setShowHoldHint] = useState(false)
   const animationFrameRef = useRef<number>()
   const touchStartPosRef = useRef({ x: 0, y: 0 })
   const touchTimerRef = useRef<NodeJS.Timeout>()
+  const holdHintTimeoutRef = useRef<NodeJS.Timeout>()
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
     
-    // Clear any existing timer
+    // Clear any existing timers
     if (touchTimerRef.current) {
       clearTimeout(touchTimerRef.current)
     }
+    if (holdHintTimeoutRef.current) {
+      clearTimeout(holdHintTimeoutRef.current)
+    }
+    
+    // Show hold hint immediately
+    setShowHoldHint(true)
+    
+    // Hide hold hint after 1 second
+    holdHintTimeoutRef.current = setTimeout(() => {
+      setShowHoldHint(false)
+    }, 1000)
     
     // Set a timer for 1 second before activating the effect
     touchTimerRef.current = setTimeout(() => {
@@ -98,11 +111,15 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   }
 
   const handleTouchEnd = () => {
-    // Clear the timer
+    // Clear all timers
     if (touchTimerRef.current) {
       clearTimeout(touchTimerRef.current)
     }
+    if (holdHintTimeoutRef.current) {
+      clearTimeout(holdHintTimeoutRef.current)
+    }
     
+    setShowHoldHint(false)
     setIsHovered(false)
     setTargetRotation({ x: 0, y: 0 })
     setRotation({ x: 0, y: 0 })
@@ -172,6 +189,9 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
       if (touchTimerRef.current) {
         clearTimeout(touchTimerRef.current)
       }
+      if (holdHintTimeoutRef.current) {
+        clearTimeout(holdHintTimeoutRef.current)
+      }
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
       }
@@ -227,6 +247,21 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             <div className="card__shine absolute inset-0" />
             <div className="card__glare absolute inset-0" />
             
+            {/* Hold hint indicator */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ 
+                opacity: showHoldHint ? 1 : 0,
+                scale: showHoldHint ? 1 : 0.8,
+              }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            >
+              <div className="bg-black/80 backdrop-blur-sm px-3 py-2 rounded-full text-white text-sm font-medium shadow-lg">
+                Hold to view
+              </div>
+            </motion.div>
+
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}
