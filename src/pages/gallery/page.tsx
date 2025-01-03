@@ -82,6 +82,26 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     };
   }, [isHovered, isTouchDevice]);
 
+  useEffect(() => {
+    const animate = () => {
+      setRotation(prev => ({
+        x: prev.x + (targetRotation.x - prev.x) * 0.2,
+        y: prev.y + (targetRotation.y - prev.y) * 0.2
+      }))
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+    
+    if (isHovered) {
+      animationFrameRef.current = requestAnimationFrame(animate)
+    }
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [isHovered, targetRotation])
+
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
     const now = Date.now()
@@ -95,8 +115,9 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
 
     if (isDoubleTap) {
       e.preventDefault() // Prevent zoom
-      setIsHovered(prev => !prev) // Toggle the effect
-      setOpacity(prev => isHovered ? 0 : (artwork.status === "Limited Edition" ? 0.6 : 0.25))
+      const newHovered = !isHovered
+      setIsHovered(newHovered)
+      setOpacity(newHovered ? (artwork.status === "Limited Edition" ? 0.6 : 0.25) : 0)
       setMousePosition({ x: 50, y: 50 })
       setShowTapHint(false)
       if (tapHintTimeoutRef.current) {
