@@ -13,7 +13,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between px-4">
+        <div className="container flex h-14 items-center justify-between px-4 mx-auto max-w-[1400px]">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center">
               <span className="font-bold text-lg">SmolMart</span>
@@ -50,7 +50,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="pt-14 h-[calc(100vh-3.5rem)]">{children}</main>
+      <main className="pt-14 h-[calc(100vh-3.5rem)] overflow-x-hidden">
+        <div className="container mx-auto max-w-[1400px] h-full px-4 overflow-visible">
+          {children}
+        </div>
+      </main>
     </div>
   )
 } 

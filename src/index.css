@@ -129,6 +129,12 @@
   max-width: 400px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.card:hover {
+  z-index: 10;
 }
 
 .card__front {
@@ -136,6 +142,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   overflow: visible;
+  position: relative;
 }
 
 .card__image-container {
