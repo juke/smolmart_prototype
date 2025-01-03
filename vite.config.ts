@@ -16,10 +16,15 @@ export default defineConfig({
     assetsDir: 'assets',
     rollupOptions: {
       output: {
-        // Ensure proper MIME types by using standard extensions
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]'
+        // Use .mjs extension for module files to ensure correct MIME type
+        entryFileNames: 'assets/[name].[hash].mjs',
+        chunkFileNames: 'assets/[name].[hash].mjs',
+        assetFileNames: ({name}) => {
+          if (/\.(js|mjs)$/.test(name ?? '')) {
+            return 'assets/[name].[hash].mjs';
+          }
+          return 'assets/[name].[hash].[ext]';
+        }
       }
     }
   }
