@@ -227,266 +227,274 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   }, [])
 
   return (
-    <motion.div
-      variants={item}
-      data-rarity={artwork.status === "Limited Edition" ? "rare ultra" : "rare holo"}
-      {...(artwork.status === "Limited Edition" ? { "data-supertype": "pokémon" } : {})}
-      className="card relative w-full border bg-card text-card-foreground group rounded-lg select-none"
-    >
-      <div className="card__front">
-        <div className="relative overflow-visible">
-          <div 
-            ref={imageRef}
-            className={`card__image-container relative aspect-square overflow-hidden rounded-t-lg ${isHovered ? 'touch-none' : ''}`}
-            style={{
-              transform: isHovered 
-                ? `perspective(800px) 
-                   rotateX(${rotation.x}deg) 
-                   rotateY(${rotation.y}deg) 
-                   scale3d(1.04, 1.04, 1.04)
-                   translateZ(50px)`
-                : 'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0)',
-              transition: 'transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
-              transformStyle: 'preserve-3d',
-              transformOrigin: 'center center',
-              borderRadius: isHovered ? '0.5rem' : '0.5rem 0.5rem 0 0',
-              '--o': opacity,
-              '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
-              willChange: 'transform',
-              touchAction: isHovered ? 'none' : 'auto',
-            } as React.CSSProperties}
-            onMouseMove={handleMouseMove}
-            onMouseEnter={() => {
-              if (!isTouchDevice) {
-                setIsHovered(true)
-                setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
-              }
-            }}
-            onMouseLeave={handleTouchEnd}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <img
-              src={getImagePath(artwork.image)}
-              alt={artwork.title}
-              className="h-full w-full object-cover transform-gpu"
-            />
-            <div className="card__shine absolute inset-0" />
-            <div className="card__glare absolute inset-0" />
-            
-            {/* Hold hint indicator */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ 
-                opacity: showHoldHint ? 1 : 0,
-                scale: showHoldHint ? 1 : 0.8,
+    <>
+      {isHovered && (
+        <div 
+          className="fixed inset-0 z-50 bg-transparent touch-none"
+          onTouchMove={(e) => e.preventDefault()}
+        />
+      )}
+      <motion.div
+        variants={item}
+        data-rarity={artwork.status === "Limited Edition" ? "rare ultra" : "rare holo"}
+        {...(artwork.status === "Limited Edition" ? { "data-supertype": "pokémon" } : {})}
+        className="card relative w-full border bg-card text-card-foreground group rounded-lg select-none"
+      >
+        <div className="card__front">
+          <div className="relative overflow-visible">
+            <div 
+              ref={imageRef}
+              className={`card__image-container relative aspect-square overflow-hidden rounded-t-lg ${isHovered ? 'touch-none' : ''}`}
+              style={{
+                transform: isHovered 
+                  ? `perspective(800px) 
+                     rotateX(${rotation.x}deg) 
+                     rotateY(${rotation.y}deg) 
+                     scale3d(1.04, 1.04, 1.04)
+                     translateZ(50px)`
+                  : 'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateZ(0)',
+                transition: 'transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
+                transformStyle: 'preserve-3d',
+                transformOrigin: 'center center',
+                borderRadius: isHovered ? '0.5rem' : '0.5rem 0.5rem 0 0',
+                '--o': opacity,
+                '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
+                willChange: 'transform',
+                touchAction: isHovered ? 'none' : 'auto',
+              } as React.CSSProperties}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => {
+                if (!isTouchDevice) {
+                  setIsHovered(true)
+                  setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+                }
               }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              onMouseLeave={handleTouchEnd}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
-              <div className="bg-black/80 backdrop-blur-sm px-3 py-2 rounded-full text-white text-sm font-medium shadow-lg">
-                Hold to view
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"
-            >
-              <motion.div 
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
-                transition={{ 
-                  type: "spring",
-                  damping: 20,
-                  stiffness: 300,
-                  opacity: { duration: 0.2 }
-                }}
-                className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold select-none
-                  ${artwork.status === "Limited Edition" 
-                    ? "bg-gradient-to-r from-amber-600/90 via-yellow-500/90 to-amber-600/90 text-white shadow-lg shadow-amber-500/30" 
-                    : "bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 text-white shadow-md shadow-slate-500/20"
-                  }`}
-              >
-                <motion.div
-                  initial={false}
-                  animate={isHovered ? {
-                    scale: [1, 1.05, 1],
-                    opacity: [1, 0.9, 1],
-                  } : { scale: 1, opacity: 1 }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className={`flex items-center gap-1.5 select-none ${
-                    artwork.status === "Limited Edition"
-                      ? "drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]"
-                      : "drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
-                  }`}
-                >
-                  {artwork.status === "Limited Edition" ? (
-                    <>
-                      <motion.span
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          opacity: [1, 0.9, 1],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                          delay: 0.5
-                        }}
-                        className="text-amber-200 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]"
-                      >
-                        ★
-                      </motion.span>
-                      <span className="font-bold text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                        Ultra Rare
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <motion.span
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          opacity: [1, 0.9, 1],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                          delay: 0.5
-                        }}
-                        className="text-blue-200 drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
-                      >
-                        ◇
-                      </motion.span>
-                      <span className="font-bold text-slate-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                        Rare
-                      </span>
-                    </>
-                  )}
-                </motion.div>
-              </motion.div>
+              <img
+                src={getImagePath(artwork.image)}
+                alt={artwork.title}
+                className="h-full w-full object-cover transform-gpu"
+              />
+              <div className="card__shine absolute inset-0" />
+              <div className="card__glare absolute inset-0" />
               
-              <motion.div 
-                initial={{ x: -20, opacity: 0 }}
-                animate={isHovered ? { x: 0, opacity: 1 } : { x: -20, opacity: 0 }}
-                transition={{ 
-                  duration: 0.3,
-                  ease: "easeOut",
-                  opacity: { duration: 0.2 }
+              {/* Hold hint indicator */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ 
+                  opacity: showHoldHint ? 1 : 0,
+                  scale: showHoldHint ? 1 : 0.8,
                 }}
-                className="absolute top-2 left-2 flex items-center"
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
               >
-                <div className="relative flex items-center group">
-                  <div className="relative flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-200/40 via-yellow-300/40 to-yellow-500/40 animate-spin-slow" />
-                    <div className="relative w-[22px] h-[22px] rounded-full bg-gradient-to-br from-purple-400 to-pink-400 p-[1px]">
-                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                        <span className="text-[10px] font-bold bg-gradient-to-br from-purple-300 to-pink-300 text-transparent bg-clip-text">
-                          {artwork.artist[0].toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="h-[22px] flex flex-col justify-center ml-1.5">
-                    <div className="flex flex-col leading-[1.1]">
-                      <span className="text-[8px] font-medium text-purple-200/70 tracking-wider uppercase -mb-0.5">
-                        Artist
-                      </span>
-                      <div className="text-[11px] font-bold tracking-wide bg-gradient-to-r from-yellow-100 via-yellow-200 to-amber-200 text-transparent bg-clip-text">
-                        {artwork.artist}
-                      </div>
-                    </div>
-                  </div>
+                <div className="bg-black/80 backdrop-blur-sm px-3 py-2 rounded-full text-white text-sm font-medium shadow-lg">
+                  Hold to view
                 </div>
               </motion.div>
-              
+
               <motion.div 
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: isHovered ? 1 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute bottom-2 left-2 right-2 flex justify-between text-white"
+                className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"
               >
                 <motion.div 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={isHovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={isHovered ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
                   transition={{ 
-                    duration: 0.3,
-                    ease: [0.23, 1, 0.32, 1],
-                    delay: 0.1
+                    type: "spring",
+                    damping: 20,
+                    stiffness: 300,
+                    opacity: { duration: 0.2 }
                   }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50"
+                  className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold select-none
+                    ${artwork.status === "Limited Edition" 
+                      ? "bg-gradient-to-r from-amber-600/90 via-yellow-500/90 to-amber-600/90 text-white shadow-lg shadow-amber-500/30" 
+                      : "bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 text-white shadow-md shadow-slate-500/20"
+                    }`}
                 >
-                  <Heart className="w-3 h-3 text-red-500" />
-                  <span className="text-xs font-medium">{artwork.bananas}k</span>
+                  <motion.div
+                    initial={false}
+                    animate={isHovered ? {
+                      scale: [1, 1.05, 1],
+                      opacity: [1, 0.9, 1],
+                    } : { scale: 1, opacity: 1 }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    className={`flex items-center gap-1.5 select-none ${
+                      artwork.status === "Limited Edition"
+                        ? "drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]"
+                        : "drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
+                    }`}
+                  >
+                    {artwork.status === "Limited Edition" ? (
+                      <>
+                        <motion.span
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [1, 0.9, 1],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 0.5
+                          }}
+                          className="text-amber-200 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]"
+                        >
+                          ★
+                        </motion.span>
+                        <span className="font-bold text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                          Ultra Rare
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <motion.span
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [1, 0.9, 1],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 0.5
+                          }}
+                          className="text-blue-200 drop-shadow-[0_0_4px_rgba(148,163,184,0.4)]"
+                        >
+                          ◇
+                        </motion.span>
+                        <span className="font-bold text-slate-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                          Rare
+                        </span>
+                      </>
+                    )}
+                  </motion.div>
                 </motion.div>
+                
                 <motion.div 
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={isHovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={isHovered ? { x: 0, opacity: 1 } : { x: -20, opacity: 0 }}
                   transition={{ 
                     duration: 0.3,
-                    ease: [0.23, 1, 0.32, 1],
-                    delay: 0.15
+                    ease: "easeOut",
+                    opacity: { duration: 0.2 }
                   }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50"
+                  className="absolute top-2 left-2 flex items-center"
                 >
-                  <Eye className="w-3 h-3 text-blue-500" />
-                  <span className="text-xs font-medium">{Math.floor(artwork.bananas * 2.5)}k</span>
+                  <div className="relative flex items-center group">
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-200/40 via-yellow-300/40 to-yellow-500/40 animate-spin-slow" />
+                      <div className="relative w-[22px] h-[22px] rounded-full bg-gradient-to-br from-purple-400 to-pink-400 p-[1px]">
+                        <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                          <span className="text-[10px] font-bold bg-gradient-to-br from-purple-300 to-pink-300 text-transparent bg-clip-text">
+                            {artwork.artist[0].toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-[22px] flex flex-col justify-center ml-1.5">
+                      <div className="flex flex-col leading-[1.1]">
+                        <span className="text-[8px] font-medium text-purple-200/70 tracking-wider uppercase -mb-0.5">
+                          Artist
+                        </span>
+                        <div className="text-[11px] font-bold tracking-wide bg-gradient-to-r from-yellow-100 via-yellow-200 to-amber-200 text-transparent bg-clip-text">
+                          {artwork.artist}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute bottom-2 left-2 right-2 flex justify-between text-white"
+                >
+                  <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={isHovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+                    transition={{ 
+                      duration: 0.3,
+                      ease: [0.23, 1, 0.32, 1],
+                      delay: 0.1
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50"
+                  >
+                    <Heart className="w-3 h-3 text-red-500" />
+                    <span className="text-xs font-medium">{artwork.bananas}k</span>
+                  </motion.div>
+                  <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={isHovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+                    transition={{ 
+                      duration: 0.3,
+                      ease: [0.23, 1, 0.32, 1],
+                      delay: 0.15
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/50"
+                  >
+                    <Eye className="w-3 h-3 text-blue-500" />
+                    <span className="text-xs font-medium">{Math.floor(artwork.bananas * 2.5)}k</span>
+                  </motion.div>
                 </motion.div>
               </motion.div>
-            </motion.div>
-          </div>
-        </div>
-        
-        <div className="p-4 flex flex-col gap-2 rounded-b-lg select-none">
-          <div className="flex flex-col gap-0.5">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
-              <span className="flex items-center gap-1 text-yellow-500 shrink-0">
-                <Banana className="h-4 w-4" />
-                <span>{artwork.bananas}</span>
-              </span>
             </div>
-            <p className="text-sm text-muted-foreground">by {artwork.artist}</p>
           </div>
-          <div className="relative">
-            <div className="flex overflow-x-auto no-scrollbar items-center gap-1 pb-0.5 mask-fade-right">
-              {artwork.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium whitespace-nowrap"
-                >
-                  {tag}
+          
+          <div className="p-4 flex flex-col gap-2 rounded-b-lg select-none">
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold truncate text-base">{artwork.title}</h3>
+                <span className="flex items-center gap-1 text-yellow-500 shrink-0">
+                  <Banana className="h-4 w-4" />
+                  <span>{artwork.bananas}</span>
                 </span>
-              ))}
+              </div>
+              <p className="text-sm text-muted-foreground">by {artwork.artist}</p>
             </div>
-            <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-background to-transparent" />
-          </div>
-          <div className="flex items-center justify-between mt-auto pt-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  {getStatusIcon(artwork.status)}
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{artwork.status}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Button variant="outline" size="sm" className="rounded-md">
-              Request Custom
-            </Button>
+            <div className="relative">
+              <div className="flex overflow-x-auto no-scrollbar items-center gap-1 pb-0.5 mask-fade-right">
+                {artwork.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-background to-transparent" />
+            </div>
+            <div className="flex items-center justify-between mt-auto pt-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    {getStatusIcon(artwork.status)}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{artwork.status}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Button variant="outline" size="sm" className="rounded-md">
+                Request Custom
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
   )
 }
 
