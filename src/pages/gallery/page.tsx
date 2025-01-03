@@ -83,9 +83,25 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    // Clear the timer if user starts scrolling
-    if (touchTimerRef.current) {
-      clearTimeout(touchTimerRef.current)
+    // If not hovered yet (still in hold timer), allow scrolling
+    if (!isHovered) {
+      const touch = e.touches[0]
+      const touchDistance = Math.hypot(
+        touch.clientX - touchStartPosRef.current.x,
+        touch.clientY - touchStartPosRef.current.y
+      )
+      
+      // If user starts scrolling, cancel the hold timer
+      if (touchDistance > 10) {
+        if (touchTimerRef.current) {
+          clearTimeout(touchTimerRef.current)
+        }
+        if (holdHintTimeoutRef.current) {
+          clearTimeout(holdHintTimeoutRef.current)
+        }
+        setShowHoldHint(false)
+        return
+      }
     }
 
     if (!imageRef.current || !isHovered) return
@@ -209,7 +225,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
         <div className="relative overflow-visible">
           <div 
             ref={imageRef}
-            className="card__image-container relative aspect-square overflow-hidden rounded-t-lg touch-none"
+            className="card__image-container relative aspect-square overflow-hidden rounded-t-lg"
             style={{
               transform: isHovered 
                 ? `perspective(800px) 
@@ -225,7 +241,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
               '--o': opacity,
               '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
               willChange: 'transform',
-              touchAction: 'none',
+              touchAction: isHovered ? 'none' : 'auto',
             } as React.CSSProperties}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => {
