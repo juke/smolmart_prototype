@@ -34,30 +34,21 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 })
   const [isTouchDevice] = useState('ontouchstart' in window)
   const animationFrameRef = useRef<number>()
-  const touchStartTimeRef = useRef(0)
   const touchStartPosRef = useRef({ x: 0, y: 0 })
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
-    touchStartTimeRef.current = Date.now()
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
 
-    // Single tap to show details
-    if (!isHovered) {
-      setIsHovered(true)
-      setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
-      setMousePosition({ x: 50, y: 50 })
-    } else {
-      setIsHovered(false)
-      setOpacity(0)
-      setMousePosition({ x: 50, y: 50 })
-    }
+    // Single tap to toggle details
+    setIsHovered(!isHovered)
+    setOpacity(!isHovered ? (artwork.status === "Limited Edition" ? 0.6 : 0.25) : 0)
+    setMousePosition({ x: 50, y: 50 })
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (!imageRef.current || !isHovered) return
 
-    // If it's not a deliberate touch interaction (like scrolling), ignore
     const touch = e.touches[0]
     const touchDistance = Math.hypot(
       touch.clientX - touchStartPosRef.current.x,
