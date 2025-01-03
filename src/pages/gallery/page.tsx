@@ -35,34 +35,47 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [isTouchDevice] = useState('ontouchstart' in window)
   const animationFrameRef = useRef<number>()
   const touchStartPosRef = useRef({ x: 0, y: 0 })
+  const touchTimerRef = useRef<NodeJS.Timeout>()
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
     
-    // Set initial position for tilt effect
-    if (!isHovered) {
-      setIsHovered(true)
-      setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
-      setMousePosition({ x: 50, y: 50 })
-      
-      // Start animation frame for smooth tilt
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-      const animate = () => {
-        setRotation(prev => ({
-          x: prev.x + (targetRotation.x - prev.x) * 0.2,
-          y: prev.y + (targetRotation.y - prev.y) * 0.2
-        }))
+    // Clear any existing timer
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current)
+    }
+    
+    // Set a timer for 1 second before activating the effect
+    touchTimerRef.current = setTimeout(() => {
+      if (!isHovered) {
+        setIsHovered(true)
+        setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
+        setMousePosition({ x: 50, y: 50 })
+        
+        // Start animation frame for smooth tilt
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current)
+        }
+        const animate = () => {
+          setRotation(prev => ({
+            x: prev.x + (targetRotation.x - prev.x) * 0.2,
+            y: prev.y + (targetRotation.y - prev.y) * 0.2
+          }))
+          animationFrameRef.current = requestAnimationFrame(animate)
+        }
         animationFrameRef.current = requestAnimationFrame(animate)
       }
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
+    }, 1000)
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!imageRef.current) return
+    // Clear the timer if user starts scrolling
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current)
+    }
+
+    if (!imageRef.current || !isHovered) return
 
     const touch = e.touches[0]
     const rect = imageRef.current.getBoundingClientRect()
@@ -85,6 +98,11 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   }
 
   const handleTouchEnd = () => {
+    // Clear the timer
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current)
+    }
+    
     setIsHovered(false)
     setTargetRotation({ x: 0, y: 0 })
     setRotation({ x: 0, y: 0 })
@@ -147,6 +165,18 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
       }
     }
   }, [isHovered, targetRotation])
+
+  // Clean up timers on unmount
+  useEffect(() => {
+    return () => {
+      if (touchTimerRef.current) {
+        clearTimeout(touchTimerRef.current)
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [])
 
   return (
     <motion.div
