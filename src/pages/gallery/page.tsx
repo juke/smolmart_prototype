@@ -39,6 +39,18 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const touchTimerRef = useRef<NodeJS.Timeout>()
   const holdHintTimeoutRef = useRef<NodeJS.Timeout>()
 
+  // Add/remove overflow hidden class on body when card is active
+  useEffect(() => {
+    if (isHovered) {
+      document.body.classList.add('overflow-hidden')
+    } else {
+      document.body.classList.remove('overflow-hidden')
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden')
+    }
+  }, [isHovered])
+
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
