@@ -50,8 +50,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="pt-14 h-[calc(100vh] overflow-x-hidden">
-        <div className="container mx-auto max-w-[1400px] h-full px-4 overflow-visible pb-0">
+      <main className="pt-14 min-h-[calc(100vh-3.5rem)] overflow-y-auto">
+        <div className="container mx-auto max-w-[1400px] h-full px-4 overflow-visible pb-8">
           {children}
         </div>
       </main>

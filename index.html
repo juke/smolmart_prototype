@@ -11,11 +11,13 @@
         var redirect = sessionStorage.redirect;
         delete sessionStorage.redirect;
         if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect.replace(location.origin, ''));
+          var cleanPath = redirect
+            .replace(location.origin, '')
+            .replace('/smolmart_prototype/', '/smolmart_prototype');
+          history.replaceState(null, null, cleanPath);
         }
       })();
     </script>
-    <base href="/smolmart_prototype/" />
   </head>
   <body>
     <div id="root"></div>

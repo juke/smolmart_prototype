@@ -33,20 +33,30 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
   const [opacity, setOpacity] = useState(0)
   const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 })
   const [isTouchDevice] = useState('ontouchstart' in window)
+  const [showTapHint, setShowTapHint] = useState(false)
   const animationFrameRef = useRef<number>()
   const gyroscopeEnabled = useRef(false)
+  const lastTapRef = useRef(0)
+  const touchStartTimeRef = useRef(0)
+  const touchStartPosRef = useRef({ x: 0, y: 0 })
+  const tapHintTimeoutRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (!gyroscopeEnabled.current || !isHovered) return;
       
-      const x = event.beta ? -event.beta / 5 : 0;
-      const y = event.gamma ? event.gamma / 5 : 0;
+      const x = event.beta ? event.beta / 2 : 0; // Tilt front/back
+      const y = event.gamma ? event.gamma / 2 : 0; // Tilt left/right
       
-      const clampedX = Math.min(Math.max(x, -10), 10);
-      const clampedY = Math.min(Math.max(y, -10), 10);
+      const clampedX = Math.min(Math.max(x, -20), 20);
+      const clampedY = Math.min(Math.max(y, -20), 20);
       
-      setTargetRotation({ x: clampedX, y: clampedY });
+      setTargetRotation({ x: -clampedX, y: clampedY });
+      
+      // Update shine effect position based on device orientation
+      const normalizedX = (clampedY + 20) / 40 * 100; // Convert -20,20 range to 0-100
+      const normalizedY = (clampedX + 20) / 40 * 100;
+      setMousePosition({ x: normalizedX, y: normalizedY });
     };
 
     if (isTouchDevice && isHovered) {
@@ -72,35 +82,76 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     };
   }, [isHovered, isTouchDevice]);
 
-  useEffect(() => {
-    const animate = () => {
-      setRotation(prev => ({
-        x: prev.x + (targetRotation.x - prev.x) * 0.2,
-        y: prev.y + (targetRotation.y - prev.y) * 0.2
-      }))
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
-    
-    if (isHovered) {
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0]
+    const now = Date.now()
+    touchStartTimeRef.current = now
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY }
+
+    // Check for double tap
+    const timeSinceLastTap = now - lastTapRef.current
+    const isDoubleTap = timeSinceLastTap < 300
+    lastTapRef.current = now
+
+    if (isDoubleTap) {
+      e.preventDefault() // Prevent zoom
+      setIsHovered(prev => !prev) // Toggle the effect
+      setOpacity(prev => isHovered ? 0 : (artwork.status === "Limited Edition" ? 0.6 : 0.25))
+      setMousePosition({ x: 50, y: 50 })
+      setShowTapHint(false)
+      if (tapHintTimeoutRef.current) {
+        clearTimeout(tapHintTimeoutRef.current)
+      }
+    } else {
+      // Show tap hint on single tap only if not already hovered
+      if (!isHovered) {
+        setShowTapHint(true)
+        if (tapHintTimeoutRef.current) {
+          clearTimeout(tapHintTimeoutRef.current)
+        }
+        tapHintTimeoutRef.current = setTimeout(() => {
+          setShowTapHint(false)
+        }, 2000)
       }
     }
-  }, [isHovered, targetRotation])
+  }
 
-  const handleTouchStart = () => {
-    setIsHovered(true)
-    setOpacity(artwork.status === "Limited Edition" ? 0.6 : 0.25)
-    
-    if (imageRef.current) {
-      setMousePosition({
-        x: 50,
-        y: 50
-      })
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!imageRef.current || !isHovered) return
+
+    // If it's not a deliberate touch interaction (like scrolling), ignore
+    const touch = e.touches[0]
+    const touchDuration = Date.now() - touchStartTimeRef.current
+    const touchDistance = Math.hypot(
+      touch.clientX - touchStartPosRef.current.x,
+      touch.clientY - touchStartPosRef.current.y
+    )
+
+    // If it's a quick swipe or scroll, end the effect
+    if (touchDuration < 200 && touchDistance > 20) {
+      handleTouchEnd()
+      return
+    }
+
+    // Only handle touch move if gyroscope is not enabled
+    if (!gyroscopeEnabled.current) {
+      const rect = imageRef.current.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      
+      const normalizedX = (touch.clientX - centerX) / (rect.width / 2)
+      const normalizedY = (touch.clientY - centerY) / (rect.height / 2)
+      
+      const dampingFactor = 0.3
+      const maxTilt = 10
+      const rotateX = -normalizedY * maxTilt * dampingFactor
+      const rotateY = normalizedX * maxTilt * dampingFactor
+      
+      setTargetRotation({ x: rotateX, y: rotateY })
+      
+      const posx = ((touch.clientX - rect.left) / rect.width) * 100
+      const posy = ((touch.clientY - rect.top) / rect.height) * 100
+      setMousePosition({ x: posx, y: posy })
     }
   }
 
@@ -112,41 +163,6 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     setOpacity(0)
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
-    }
-  }
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!imageRef.current || !isHovered) return
-    
-    const touch = e.touches[0]
-    const rect = imageRef.current.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
-    
-    const normalizedX = (touch.clientX - centerX) / (rect.width / 2)
-    const normalizedY = (touch.clientY - centerY) / (rect.height / 2)
-    
-    const hyp = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY)
-    
-    const dampingFactor = 0.4
-    const maxTilt = 6
-    const rotateX = -normalizedY * maxTilt * dampingFactor
-    const rotateY = normalizedX * maxTilt * dampingFactor
-    
-    const posx = ((touch.clientX - rect.left) / rect.width) * 100
-    const posy = ((touch.clientY - rect.top) / rect.height) * 100
-    
-    if (!gyroscopeEnabled.current) {
-      setTargetRotation({ x: rotateX, y: rotateY })
-    }
-    setMousePosition({ x: posx, y: posy })
-
-    if (imageRef.current) {
-      imageRef.current.style.setProperty('--rx', `${rotateX}deg`)
-      imageRef.current.style.setProperty('--ry', `${rotateY}deg`)
-      imageRef.current.style.setProperty('--hyp', hyp.toString())
-      imageRef.current.style.setProperty('--posx', `${posx}%`)
-      imageRef.current.style.setProperty('--posy', `${posy}%`)
     }
   }
 
@@ -193,6 +209,15 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
     }
   }
 
+  // Clean up tap hint timeout
+  useEffect(() => {
+    return () => {
+      if (tapHintTimeoutRef.current) {
+        clearTimeout(tapHintTimeoutRef.current)
+      }
+    }
+  }, [])
+
   return (
     <motion.div
       variants={item}
@@ -220,6 +245,7 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
               '--o': opacity,
               '--pos': `${mousePosition.x}% ${mousePosition.y}%`,
               willChange: 'transform',
+              touchAction: 'manipulation',
             } as React.CSSProperties}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => {
@@ -241,6 +267,21 @@ function ArtworkCard({ artwork }: ArtworkCardProps) {
             <div className="card__shine absolute inset-0" />
             <div className="card__glare absolute inset-0" />
             
+            {/* Tap hint indicator */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ 
+                opacity: showTapHint ? 1 : 0,
+                scale: showTapHint ? 1 : 0.8,
+              }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            >
+              <div className="bg-black/80 backdrop-blur-sm px-3 py-2 rounded-full text-white text-sm font-medium shadow-lg">
+                Double tap for details
+              </div>
+            </motion.div>
+
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}
@@ -489,7 +530,7 @@ export default function GalleryPage() {
   const { stats } = artworksData
 
   return (
-    <div className="relative flex min-h-full flex-col">
+    <div className="relative min-h-screen flex flex-col">
       <div className="fixed top-[3.54rem] left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto max-w-[1400px] py-3 md:py-6 px-4">
           <div className="flex flex-col gap-2 md:gap-4 md:flex-row md:items-center md:justify-between">
@@ -501,8 +542,8 @@ export default function GalleryPage() {
                       <PanelLeft className="h-5 w-5" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-[280px] p-0">
-                    <div className="space-y-6 p-4">
+                  <SheetContent side="left" className="w-[280px] p-0 overflow-y-auto">
+                    <div className="space-y-6 p-4 pb-8">
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-2">
                           <div className="rounded-lg border p-2">
@@ -685,11 +726,11 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      <div className="flex-1 pt-32 md:pt-32">
-        <div className="mx-auto max-w-[1400px] relative px-4 md:px-0">
+      <main className="flex-1 pt-32 md:pt-32">
+        <div className="container mx-auto max-w-[1400px] relative px-4 md:px-0">
           <div className="fixed w-[280px] hidden md:block">
             <div className="rounded-lg border bg-card shadow-lg">
-              <div className="space-y-6 p-4">
+              <div className="space-y-6 p-4 h-[calc(100vh-8rem)] overflow-y-auto">
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg border p-2">
@@ -785,7 +826,7 @@ export default function GalleryPage() {
           <div className="md:pl-[calc(280px+1rem)]">
             <motion.div 
               layout
-              className="grid auto-rows-max grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 w-full px-2 md:px-3 relative min-h-[200px]"
+              className="grid auto-rows-max grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 w-full px-2 md:px-3 relative"
               style={{
                 perspective: '1000px',
                 transformStyle: 'preserve-3d'
@@ -826,7 +867,7 @@ export default function GalleryPage() {
               {filteredArtworks.length === 0 && (
                 <motion.div
                   key="empty"
-                  className="absolute inset-0 flex items-center justify-center text-muted-foreground"
+                  className="col-span-full flex items-center justify-center py-8 text-muted-foreground"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}
@@ -837,7 +878,7 @@ export default function GalleryPage() {
             </motion.div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 } 
