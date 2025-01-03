@@ -9,26 +9,23 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    }
+    },
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    modulePreload: {
-      polyfill: true
-    },
+    modulePreload: false,
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html')
-      },
       output: {
-        entryFileNames: `assets/[name].[hash].js`,
-        chunkFileNames: `assets/[name].[hash].js`,
-        assetFileNames: `assets/[name].[hash].[ext]`,
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor'
+        format: 'es',
+        entryFileNames: `assets/[name].[hash].mjs`,
+        chunkFileNames: `assets/[name].[hash].mjs`,
+        assetFileNames: ({name}) => {
+          if (/\.(js|ts|jsx|tsx)$/.test(name ?? '')) {
+            return 'assets/[name].[hash].mjs';
           }
+          return 'assets/[name].[hash].[ext]';
         }
       }
     }
